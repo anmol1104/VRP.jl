@@ -3,7 +3,7 @@
 
 # Vehicle Routing Problem (VRP)
 
-single-depot vehicle routing problem with heterogenous fleet of single-route delivery vehicles
+single-depot vehicle routing problem with heterogeneous fleet of single-route delivery vehicles
 
 Given, a graph `G = (d, C, A)` with 
 depot node `d` with fleet `d.V`;
