@@ -2,7 +2,7 @@
 """
     initialsolution([rng], instance, method)
 
-Returns initial LRP solution for the given `instance` using the given `method`.
+Returns initial VRP solution for the given `instance` using the given `method`.
 
 Available methods include,
 - Random Initialization                 : `:random`
