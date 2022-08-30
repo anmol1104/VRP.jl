@@ -6,20 +6,22 @@ Uses given `backend` to plot (defaults to `gr`).
 """
 function visualize(instance; backend=gr)
     backend()
-    d, C, _ = build(instance)
+    D, C, _ = build(instance)
     fig = plot(legend=:none)
-    K = 1+length(C)
+    K = length(D)+length(C)
     X = zeros(Float64, K)
     Y = zeros(Float64, K)
     M₁= fill("color", K)
     M₂= zeros(Int64, K)
     M₃= fill(:shape, K)
-    # Depot node
-    X[1] = d.x
-    Y[1] = d.y
-    M₁[1] = "#b4464b"
-    M₂[1] = 6
-    M₃[1] = :rect
+    # Depot nodes
+    for (k,d) ∈ pairs(D)
+        X[k] = d.x
+        Y[k] = d.y
+        M₁[k] = "#b4464b"
+        M₂[k] = 6
+        M₃[k] = :rect
+    end
     # Customer nodes
     for (k,c) ∈ pairs(C)
         X[k] = c.x
@@ -39,37 +41,38 @@ Uses given `backend` to plot (defaults to `gr`).
 """
 function visualize(s::Solution; backend=gr)
     backend()
-    d = s.d
+    D = s.D
     C = s.C
     fig = plot(legend=:none)
     # Operational nodes: open depot nodes and closed customer nodes
-    Z = vectorize(s)
-    K = length(Z)
-    X = zeros(Float64, K)
-    Y = zeros(Float64, K)
-    M₁= fill("color", K)
-    M₂= zeros(Int64, K)
-    M₃= fill(:shape, K)
-    for k ∈ 1:K
-        i = Z[k]
-        n = isone(i) ? d : C[i]
-        X[k] = n.x
-        Y[k] = n.y
-        if isdepot(n) 
-            M₁[k] = "#82b446"
-            M₂[k] = 6
-            M₃[k] = :rect
-        else 
-            M₁[k] = "#4682b4"
-            M₂[k] = 5
-            M₃[k] = :circle
+    for Z ∈ vectorize(s)
+        K = length(Z)
+        X = zeros(Float64, K)
+        Y = zeros(Float64, K)
+        M₁= fill("color", K)
+        M₂= zeros(Int64, K)
+        M₃= fill(:shape, K)
+        for k ∈ 1:K
+            i = Z[k]
+            n = i ≤ length(D) ? D[i] : C[i]
+            X[k] = n.x
+            Y[k] = n.y
+            if isdepot(n) 
+                M₁[k] = "#82b446"
+                M₂[k] = 6
+                M₃[k] = :rect
+            else 
+                M₁[k] = "#4682b4"
+                M₂[k] = 5
+                M₃[k] = :circle
+            end
         end
+        scatter!(X, Y, color=M₁, markersize=M₂, markershape=M₃, markerstrokewidth=0)
+        plot!(X, Y, color="#23415a")
     end
-    scatter!(X, Y, color=M₁, markersize=M₂, markershape=M₃, markerstrokewidth=0)
-    plot!(X, Y, color="#23415a")
     # Non-operational nodes: closed depot nodes and open customer nodes
     Z = Int64[] 
-    if !isopt(d) push!(Z, d.i) end
+    for d ∈ D if !isopt(d) push!(Z, d.i) end end
     for c ∈ C if isopen(c) push!(Z, c.i) end end
     K = length(Z)
     X = zeros(Float64, K)
@@ -102,22 +105,26 @@ end
 Returns solution as a sequence of nodes in the order of visits.
 """
 function vectorize(s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    Z = Int64[]
-    if !isopt(d) return Z end
-    for v ∈ d.V
-        if !isopt(v) continue end
-        r = v.r
-        cₛ, cₑ = C[r.iₛ], C[r.iₑ]
-        push!(Z, d.i)
-        c = cₛ
-        while true
-            push!(Z, c.i)
-            if isequal(c, cₑ) break end
-            c = C[c.iₕ]
+    Z = [Int64[] for _ ∈ D]
+    for d ∈ D
+        i = d.i
+        if !isopt(d) continue end
+        for v ∈ d.V
+            if !isopt(v) continue end
+            r = v.r
+            if !isopt(r) continue end
+            cₛ, cₑ = C[r.iₛ], C[r.iₑ]
+            push!(Z[i], d.i)
+            c = cₛ
+            while true
+                push!(Z[i], c.i)
+                if isequal(c, cₑ) break end
+                c = C[c.iₕ]
+            end
         end
-        push!(Z, d.i)
+        push!(Z[i], d.i)
     end
     return Z
 end

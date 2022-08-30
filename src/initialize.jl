@@ -18,9 +18,9 @@ initialsolution(instance, method::Symbol) = initialsolution(Random.GLOBAL_RNG, i
 function random(rng::AbstractRNG, instance)
     G = build(instance)
     s = Solution(G...)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     # Step 1: Initialize
     I = eachindex(C)
@@ -32,8 +32,10 @@ function random(rng::AbstractRNG, instance)
         j = sample(rng, J)
         c = C[i]
         r = R[j]
+        v = V[r.o]
+        d = D[v.o]
         nₜ = d
-        nₕ = isopt(r) ? C[r.iₛ] : d
+        nₕ = isopt(r) ? C[r.iₛ] : D[r.iₛ]
         insertnode!(c, nₜ, nₕ, r, s)
         w[i] = 0
     end

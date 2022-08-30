@@ -29,13 +29,14 @@ mutable struct Route
 end
     
 @doc """
-    Vehicle(i::Int64, q::Int64, c::Float64, r::Route)
+    Vehicle(i::Int64, o::Int64, q::Int64, c::Float64, r::Route)
 
-A `Vehicle` is a mode of delivery with index `i`, 
-capacity `q`, operational cost `c`, and route `r`.
+A `Vehicle` is a mode of delivery with index `i`, origin depot node 
+index `o`, capacity `q`, operational cost `c`, and route `r`.
 """
 struct Vehicle
     i::Int64                                                                        # Vehicle index
+    o::Int64                                                                        # Vehicle origin (depot node) index
     q::Int64                                                                        # Vehicle capacity
     c::Float64                                                                      # Operational cost
     r::Route                                                                        # Vehicle route
@@ -49,15 +50,16 @@ A `Node` is a point on the graph.
 abstract type Node end
 
 @doc """
-    DepotNode(i::Int64, x::Float64, y::Float64, V::Vector{Vehicle})
+    DepotNode(i::Int64, x::Float64, y::Float64, q::Float64, V::Vector{Vehicle})
 
-A `DepotNode` is a source point on the graph at `(x,y)` with index 
-`i`, and fleet of vehicles `V`.
+A `DepotNode` is a source point on the graph at `(x,y)` with index `i`, 
+capacity `q`, and fleet of vehicles `V`.
 """
 struct DepotNode <: Node
     i::Int64                                                                        # Depot node index
     x::Float64                                                                      # Depot node location on the x-axis
     y::Float64                                                                      # Depot node location in the y-axis
+    q::Int64                                                                        # Depot capacity
     V::Vector{Vehicle}                                                              # Vector of depot vehicles
 end
 
@@ -80,13 +82,14 @@ end
 @doc """
     Solution(D::Vector{DepotNode}, C::Vector{CustomerNode}, A::Dict{Tuple{Int64,Int64}, Arc}, V::Vector{Vehicle})
 
-A Solution is a graph with depot node `d`, customer nodes `C`, arcs `A`, and vehicles `V`.
+A Solution is a graph with depot nodes `D`, customer nodes `C`, arcs `A`, and vehicles `V`.
 """
 struct Solution
-    d::DepotNode                                                                    # Depot node
+    D::Vector{DepotNode}                                                            # Vector of depot nodes
     C::OffsetVector{CustomerNode, Vector{CustomerNode}}                             # Vector of customer nodes
     A::Dict{Tuple{Int64,Int64}, Arc}                                                # Set of arcs
-end 
+    V::Vector{Vehicle}                                                              # Set of vehicles
+end
 
 # is operational
 isopt(r::Route) = (r.n ≥ 1)                                                         # A route is defined operational if it serves at least one customer

@@ -18,9 +18,9 @@ insert!(s::Solution, method::Symbol) = insert!(Random.GLOBAL_RNG, s, method)
 # Iteratively insert randomly selected customer node at its best position until all open customer nodes have been added to the solution
 function best!(rng::AbstractRNG, s::Solution)
     if all(isclose, s.C) return s end
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     L = [c for c ∈ C if isopen(c)]
     # Step 1: Initialize
@@ -38,8 +38,10 @@ function best!(rng::AbstractRNG, s::Solution)
             if !isopen(c) continue end
             for (j,r) ∈ pairs(R)
                 if iszero(ϕ[j]) continue end
-                nₛ = isopt(r) ? C[r.iₛ] : d
-                nₑ = isopt(r) ? C[r.iₑ] : d
+                v = V[r.o]
+                d = D[v.o]
+                nₛ = isopt(r) ? C[r.iₛ] : D[r.iₛ]
+                nₑ = isopt(r) ? C[r.iₑ] : D[r.iₑ]
                 nₜ = d
                 nₕ = nₛ
                 while true
@@ -54,7 +56,7 @@ function best!(rng::AbstractRNG, s::Solution)
                     removenode!(c, nₜ, nₕ, r, s)
                     if isequal(nₜ, nₑ) break end
                     nₜ = nₕ
-                    nₕ = isequal(r.iₑ, nₜ.i) ? d : C[nₜ.iₕ]
+                    nₕ = isequal(r.iₑ, nₜ.i) ? D[nₜ.iₕ] : C[nₜ.iₕ]
                 end
             end
         end
@@ -63,17 +65,19 @@ function best!(rng::AbstractRNG, s::Solution)
         j = argmin(x[i,:])
         c = L[i]
         r = R[j]
+        v = V[r.o]
+        d = D[v.o]
         iₜ, iₕ = p[i,j]
-        nₜ = isone(iₜ) ? d : C[iₜ]
-        nₕ = isone(iₕ) ? d : C[iₕ]
+        nₜ = iₜ ≤ length(D) ? D[iₜ] : C[iₜ]
+        nₕ = iₕ ≤ length(D) ? D[iₕ] : C[iₕ]
         insertnode!(c, nₜ, nₕ, r, s)
         # Step 2.3: Revise vectors appropriately
         x[i,:] .= Inf
         x[:,j] .= Inf
         p[i,:] .= ((0, 0), )
         p[:,j] .= ((0, 0), )
-        ϕ .= 0
         w[i] = 0
+        ϕ .= 0
         ϕ[j] = 1  
     end
     # Step 3: Return initial solution
@@ -84,9 +88,9 @@ end
 # Iteratively insert customer nodes with least insertion cost until all open customer nodes have been added to the solution
 function greedy!(rng::AbstractRNG, s::Solution)
     if all(isclose, s.C) return s end
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     L = [c for c ∈ C if isopen(c)]
     # Step 1: Initialize
@@ -103,8 +107,10 @@ function greedy!(rng::AbstractRNG, s::Solution)
             if !isopen(c) continue end
             for (j,r) ∈ pairs(R)
                 if iszero(ϕ[j]) continue end
-                nₛ = isopt(r) ? C[r.iₛ] : d
-                nₑ = isopt(r) ? C[r.iₑ] : d
+                v = V[r.o]
+                d = D[v.o]
+                nₛ = isopt(r) ? C[r.iₛ] : D[r.iₛ]
+                nₑ = isopt(r) ? C[r.iₑ] : D[r.iₑ]
                 nₜ = d
                 nₕ = nₛ
                 while true
@@ -119,7 +125,7 @@ function greedy!(rng::AbstractRNG, s::Solution)
                     removenode!(c, nₜ, nₕ, r, s)
                     if isequal(nₜ, nₑ) break end
                     nₜ = nₕ
-                    nₕ = isequal(r.iₑ, nₜ.i) ? d : C[nₜ.iₕ]
+                    nₕ = isequal(r.iₑ, nₜ.i) ? D[nₜ.iₕ] : C[nₜ.iₕ]
                 end
             end
         end
@@ -127,9 +133,11 @@ function greedy!(rng::AbstractRNG, s::Solution)
         i,j = Tuple(argmin(x))
         c = L[i]
         r = R[j]
+        v = V[r.o]
+        d = D[v.o]
         iₜ, iₕ = p[i,j]
-        nₜ = isone(iₜ) ? d : C[iₜ]
-        nₕ = isone(iₕ) ? d : C[iₕ]
+        nₜ = iₜ ≤ length(D) ? D[iₜ] : C[iₜ]
+        nₕ = iₕ ≤ length(D) ? D[iₕ] : C[iₕ]
         insertnode!(c, nₜ, nₕ, r, s)
         # Step 2.3: Revise vectors appropriately
         x[i,:] .= Inf
@@ -137,7 +145,7 @@ function greedy!(rng::AbstractRNG, s::Solution)
         p[i,:] .= ((0, 0), )
         p[:,j] .= ((0, 0), )
         ϕ .= 0
-        ϕ[j] = 1  
+        ϕ[j] = 1
     end
     # Step 3: Return initial solution
     return s
@@ -147,9 +155,9 @@ end
 # Iteratively add customer nodes with highest regret cost at its best position until all open customer nodes have been added to the solution
 function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
     if all(isclose, s.C) return s end
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     L = [c for c ∈ C if isopen(c)]
     # Step 1: Initialize
@@ -170,8 +178,10 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
             for (j,r) ∈ pairs(R)
                 # Step 2.1.1: Iterate through all possible insertion position in route r
                 if iszero(ϕ[j]) continue end
-                nₛ = isopt(r) ? C[r.iₛ] : d
-                nₑ = isopt(r) ? C[r.iₑ] : d
+                v = V[r.o]
+                d = D[v.o]
+                nₛ = isopt(r) ? C[r.iₛ] : D[r.iₛ]
+                nₑ = isopt(r) ? C[r.iₑ] : D[r.iₑ]
                 nₜ = d
                 nₕ = nₛ
                 while true
@@ -196,7 +206,7 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
                     removenode!(c, nₜ, nₕ, r, s)
                     if isequal(nₜ, nₑ) break end
                     nₜ = nₕ
-                    nₕ = isequal(r.iₑ, nₜ.i) ? d : C[nₜ.iₕ]
+                    nₕ = isequal(r.iₑ, nₜ.i) ? D[nₜ.iₕ] : C[nₜ.iₕ]
                 end
             end
             # Step 2.1.2: Compute regret cost for customer node c
@@ -209,9 +219,11 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
         i = I̲[i]
         c = L[i]
         r = R[j]
+        v = V[r.o]
+        d = D[v.o]
         iₜ, iₕ = p[i,j]
-        nₜ = isone(iₜ) ? d : C[iₜ]
-        nₕ = isone(iₕ) ? d : C[iₕ]
+        nₜ = iₜ ≤ length(D) ? D[iₜ] : C[iₜ]
+        nₕ = iₕ ≤ length(D) ? D[iₕ] : C[iₕ]
         insertnode!(c, nₜ, nₕ, r, s)
         # Step 2.3: Revise vectors appropriately
         x[i,:] .= Inf
@@ -230,9 +242,9 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
             y[i,:] .= y[i,ix]
             w[i,:] .= w[i,ix]
         end
-        z .= -Inf 
+        z .= -Inf
         ϕ .= 0
-        ϕ[j] = 1  
+        ϕ[j] = 1
     end
     # Step 3: Return initial solution
     return s

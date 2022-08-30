@@ -2,9 +2,17 @@
 function build(instance)
     # Depot nodes
     file = joinpath(dirname(@__DIR__), "instances/$instance/depot_nodes.csv")
-    csv = CSV.File(file, types=[Int64, Float64, Float64])
+    csv = CSV.File(file, types=[Int64, Float64, Float64, Int64])
     df = DataFrame(csv)
-    d = DepotNode(df[1,1], df[1,2], df[1,3], Vehicle[])
+    D = Vector{DepotNode}(undef, nrow(df))
+    for k ∈ 1:nrow(df)
+        i  = df[k,1]::Int64
+        x  = df[k,2]::Float64
+        y  = df[k,3]::Float64
+        q  = df[k,4]::Int64 
+        d  = DepotNode(i, x, y, q, Vehicle[])
+        D[i] = d
+    end
     # Customer nodes
     file = joinpath(dirname(@__DIR__), "instances/$instance/customer_nodes.csv")
     csv = CSV.File(file, types=[Int64, Float64, Float64, Int64])
@@ -23,13 +31,13 @@ function build(instance)
     end
     # Arcs
     A = Dict{Tuple{Int64,Int64},Arc}()
-    N = 1+length(C)
+    N = length(D)+length(C)
     for iₜ ∈ 1:N
-        nₜ = isone(iₜ) ? d : C[iₜ]
+        nₜ = iₜ ≤ length(D) ? D[iₜ] : C[iₜ]
         xₜ = nₜ.x
         yₜ = nₜ.y
         for iₕ ∈ 1:N
-            nₕ = isone(iₕ) ? d : C[iₕ]
+            nₕ = iₕ ≤ length(D) ? D[iₕ] : C[iₕ]
             xₕ = nₕ.x
             yₕ = nₕ.y
             l  = sqrt((xₕ - xₜ)^2 + (yₕ - yₜ)^2)
@@ -44,13 +52,15 @@ function build(instance)
     V = Vector{Vehicle}(undef, nrow(df))
     for k ∈ 1:nrow(df)
         i = df[k,1]::Int64
+        o = df[k,2]::Int64
         q = df[k,3]::Int64
         c = df[k,4]::Float64
-        r = Route(i, i, d.i, d.i, 0, 0, 0)
-        v = Vehicle(i, q, c, r)
+        r = Route(i, i, o, o, 0, 0, 0)
+        v = Vehicle(i, o, q, c, r)
         V[k] = v
+        d = D[v.o]
         push!(d.V, v)
     end
-    G = (d, C, A)
+    G = (D, C, A, V)
     return G
 end

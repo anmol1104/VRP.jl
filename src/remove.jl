@@ -21,9 +21,9 @@ remove!(q::Int64, s::Solution, method::Symbol) = remove!(Random.GLOBAL_RNG, q, s
 # Random Node Removal
 # Randomly select q customer nodes to remove
 function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     # Step 1: Randomly select customer nodes to remove until q customer nodes have been removed
     n = 0
     w = isclose.(C)
@@ -32,8 +32,9 @@ function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
         c = C[i]
         if isopen(c) continue end
         r = c.r
-        nₜ = isequal(r.iₛ, c.i) ? d : C[c.iₜ]
-        nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+        v = V[r.o]
+        nₜ = isequal(r.iₛ, c.i) ? D[c.iₜ] : C[c.iₜ]
+        nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
         removenode!(c, nₜ, nₕ, r, s)
         n += 1
         w[i] = 0
@@ -45,10 +46,10 @@ end
 # Related Node Removal (related to pivot)
 # For a randomly selected customer node, remove q most related customer nodes
 function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
     A = s.A
-    V = d.V
+    V = s.V
     # Step 1: Randomly select a pivot customer node
     j = rand(rng, eachindex(C))
     # Step 2: For each customer node, evaluate relatedness to this pivot customer node
@@ -60,8 +61,9 @@ function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
         i = argmax(x)
         c = C[i]
         r = c.r
-        nₜ = isequal(r.iₛ, c.i) ? d : C[c.iₜ]
-        nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+        v = V[r.o]
+        nₜ = isequal(r.iₛ, c.i) ? D[c.iₜ] : C[c.iₜ]
+        nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
         removenode!(c, nₜ, nₕ, r, s)
         n += 1
         x[i] = -Inf
@@ -73,13 +75,13 @@ end
 # Worst Node Removal
 # Remove q customer nodes with highest removal cost (savings)
 function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     I = eachindex(C)
     J = eachindex(V)
     x = fill(-Inf, I)               # x[i]: removal cost of customer node C[i]
-    ϕ = ones(Int64, J)              # ϕ[j]: selection weight for route V[j]
+    ϕ = ones(Int64, J)              # ϕ[j]: selection weight for vehicle V[j]
     # Step 1: Iterate until q customer nodes have been removed
     n = 0
     while n < q
@@ -91,8 +93,8 @@ function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
             if isopen(c) continue end
             if iszero(ϕ[j]) continue end
             # Step 1.1.1: Remove closed customer node c between tail node nₜ and head node nₕ in route r
-            nₜ = isequal(r.iₛ, c.i) ? d : C[c.iₜ]
-            nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+            nₜ = isequal(r.iₛ, c.i) ? D[c.iₜ] : C[c.iₜ]
+            nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
             removenode!(c, nₜ, nₕ, r, s)
             # Step 1.1.2: Evaluate the removal cost
             z⁻ = f(s)
@@ -106,8 +108,8 @@ function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
         c = C[i]
         r = c.r
         v = V[r.o]
-        nₜ = isequal(r.iₛ, c.i) ? d : C[c.iₜ]
-        nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+        nₜ = isequal(r.iₛ, c.i) ? D[c.iₜ] : C[c.iₜ]
+        nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
         removenode!(c, nₜ, nₕ, r, s)
         n += 1
         # Step 1.3: Update cost and selection weight vectors
@@ -122,9 +124,9 @@ end
 # Random Route Removal
 # Iteratively select a random route and remove customer nodes from it until at least q customer nodes are removed
 function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     # Step 1: Iteratively select a random route and remove customer nodes from it until at least q customer nodes are removed
     n = 0
@@ -133,10 +135,12 @@ function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
         if isone(sum(w)) break end
         i = sample(rng, eachindex(R), Weights(w))
         r = R[i]
+        v = V[r.o]
+        d = D[v.o]
         while true
             nₜ = d
             c  = C[r.iₛ]
-            nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+            nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
             removenode!(c, nₜ, nₕ, r, s)
             n += 1
             if isequal(nₕ, d) break end
@@ -150,9 +154,9 @@ end
 # Related Route Removal
 # For a randomly selected route, remove customer nodes from most related route until q customer nodes are removed
 function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     # Step 1: Randomly select a pivot route
     j = sample(rng, eachindex(R), Weights(isopt.(R)))  
@@ -166,10 +170,12 @@ function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
         if isone(sum(w)) break end
         i = argmax(x)
         r = R[i]
+        v = V[r.o]
+        d = D[v.o]
         while true
             nₜ = d
             c  = C[r.iₛ]
-            nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+            nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
             removenode!(c, nₜ, nₕ, r, s)
             n += 1
             if isequal(nₕ, d) break end
@@ -184,9 +190,9 @@ end
 # Worst Route Removal
 # Iteratively select low-utilization route and remove customer nodes from it until at least q customer nodes are removed
 function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
-    d = s.d
+    D = s.D
     C = s.C
-    V = d.V
+    V = s.V
     R = [v.r for v ∈ V]
     # Step 1: Evaluate utilization of each route
     x = fill(Inf, eachindex(R))
@@ -203,10 +209,12 @@ function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
         if isone(sum(w)) break end
         i = argmin(x)
         r = R[i]
+        v = V[r.o]
+        d = D[v.o]
         while true
             nₜ = d
             c  = C[r.iₛ]
-            nₕ = isequal(r.iₑ, c.i) ? d : C[c.iₕ]
+            nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
             removenode!(c, nₜ, nₕ, r, s)
             n += 1
             if isequal(nₕ, d) break end

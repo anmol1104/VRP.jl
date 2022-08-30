@@ -3,13 +3,13 @@
 
 # Vehicle Routing Problem (VRP)
 
-single-depot vehicle routing problem with heterogeneous fleet of single-route delivery vehicles
+multi-depot vehicle routing problem with heterogeneous fleet of single-route delivery vehicles
 
 Given, a graph `G = (d, C, A)` with 
 depot node `d` with fleet `d.V`;
 set of customer nodes `C` with demand `c.q` for every customer `c ∈ C`; and
 set of arcs `A = {(i,j); i,j ∈ N={{d}∪C}}` with length `l` for every arc `(i,j) ∈ A`;
-the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for vehicle capacities.  
+the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for depot and vehicle capacities.  
 
 This package uses Adaptive Large Neighborhood Search (ALNS) algorithm to find an optimal solution for the Locatio Routing Problem given ALNS optimization 
 parameters,
