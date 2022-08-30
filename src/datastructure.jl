@@ -29,17 +29,17 @@ mutable struct Route
 end
     
 @doc """
-    Vehicle(i::Int64, o::Int64, q::Int64, c::Float64, r::Route)
+    Vehicle(i::Int64, o::Int64, q::Int64, c::Float64, R::Vector{Route})
 
 A `Vehicle` is a mode of delivery with index `i`, origin depot node 
-index `o`, capacity `q`, operational cost `c`, and route `r`.
+index `o`, capacity `q`, operational cost `c`, and set of routes `R`.
 """
 struct Vehicle
     i::Int64                                                                        # Vehicle index
     o::Int64                                                                        # Vehicle origin (depot node) index
     q::Int64                                                                        # Vehicle capacity
     c::Float64                                                                      # Operational cost
-    r::Route                                                                        # Vehicle route
+    R::Vector{Route}                                                                # Vector of vehicle routes
 end
 
 @doc """
@@ -93,9 +93,9 @@ end
 
 # is operational
 isopt(r::Route) = (r.n ≥ 1)                                                         # A route is defined operational if it serves at least one customer
-isopt(v::Vehicle) = isopt(v.r)                                                      # A vehicle is defined operational if its route is operational
-isopt(d::DepotNode) = any(isopt, d.V)                                               # A depot node is defined operational if any of its vehicles is operational
-isopen(c::CustomerNode) = isequal(c.r, NullRoute)                                   # A customer node is defined open if it is not being served by any vehicle-route
+isopt(v::Vehicle) = any(isopt, v.R)                                                 # A vehicle is defined operational if any of its routes is operational
+isopt(d::DepotNode) = any(isopt, d.V)                                               # A depot is defined operational if any of its vehicles is operational
+isopen(c::CustomerNode) = isequal(c.r, NullRoute)                                   # A customer is defined open if it is not being served by any vehicle-route
 
 # is close
 isclose(d::DepotNode) = !isopt(d)                                                   # A depot node is defined closed if it is non-operational
@@ -111,7 +111,10 @@ isdepot(n::Node) = typeof(n) == DepotNode
 iscustomer(n::Node) = typeof(n) == CustomerNode
 
 # Null route
-const NullRoute = Route(0, 0, 0, 0, 0, 0, Inf)
+const NullRoute = Route(0, 0, 0, 0, 0, 0, Inf) 
+
+# Empty (closed) route traversed by vehicle v from depot d
+Route(i, v::Vehicle, d::DepotNode) = Route(i, v.i, d.i, d.i, 0, 0, 0)               
 
 # Hash solution
 Base.hash(s::Solution) = hash(vectorize(s))

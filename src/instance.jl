@@ -55,8 +55,7 @@ function build(instance)
         o = df[k,2]::Int64
         q = df[k,3]::Int64
         c = df[k,4]::Float64
-        r = Route(i, i, o, o, 0, 0, 0)
-        v = Vehicle(i, o, q, c, r)
+        v = Vehicle(i, o, q, c, Route[])
         V[k] = v
         d = D[v.o]
         push!(d.V, v)

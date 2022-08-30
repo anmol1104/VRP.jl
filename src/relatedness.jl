@@ -15,3 +15,24 @@ function relatedness(r₁::Route, r₂::Route)
     z = 1/(l - q - ϕ)
     return z
 end
+function relatedness(v₁::Vehicle, v₂::Vehicle)
+    if !isopt(v₁) || !isopt(v₂) return -Inf end
+    if isequal(v₁, v₂) return Inf end
+    l₁ = 0.
+    q₁ = 0.
+    for r ∈ v₁.R 
+        l₁ += r.l
+        q₁ += r.q
+    end
+    l₂ = 0.
+    q₂ = 0.
+    for r ∈ v₂.R
+        l₂ += r.l
+        q₂ += r.q
+    end
+    l = abs(l₁ - l₂)
+    q = abs(q₁ - q₂)
+    ϕ = isequal(v₁.o, v₂.o)
+    z = 1/(l - q - ϕ)
+    return z
+end

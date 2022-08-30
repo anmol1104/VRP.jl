@@ -24,7 +24,7 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     # Step 1: Initialize
     I = eachindex(C)
     J = eachindex(R)
@@ -92,7 +92,7 @@ function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     w = isopt.(R)
     # Step 1: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
@@ -161,7 +161,7 @@ function interopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     w = isopt.(R)
     # Step 1: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
@@ -278,37 +278,38 @@ function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
         d = D[i]
         # Step 1.2: Iterate through every route originating from this depot node
         for v ∈ d.V
-            r = v.r
-            # Step 1.2.1: Remove depot node d from its position in route r
-            if !isopt(r) continue end
-            cₛ = C[r.iₛ]
-            cₑ = C[r.iₑ]
-            x = 0.
-            p = (cₑ.i, cₛ.i)
-            removenode!(d, cₑ, cₛ, r, s)
-            # Step 1.2.2: Iterate through all possible positions in route r
-            cₜ = cₛ
-            cₕ = C[cₜ.iₕ]
-            while true
-                # Step 1.2.2.1: Insert depot node d between tail node nₜ and head node nₕ
-                insertnode!(d, cₜ, cₕ, r, s)
-                # Step 1.2.2.2: Compute change in objective function value
-                z′ = f(s) 
-                Δ  = z′ - z
-                # Step 1.2.2.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
-                if Δ < x x, p = Δ, (cₜ.i, cₕ.i) end
-                # Step 1.2.2.4: Remove depot node d from its position between tail node nₜ and head node nₕ
-                removenode!(d, cₜ, cₕ, r, s)
-                if isequal(cₕ, cₑ) break end
-                cₜ = cₕ
+            for r ∈ v.R
+                # Step 1.2.1: Remove depot node d from its position in route r
+                if !isopt(r) continue end
+                cₛ = C[r.iₛ]
+                cₑ = C[r.iₑ]
+                x = 0.
+                p = (cₑ.i, cₛ.i)
+                removenode!(d, cₑ, cₛ, r, s)
+                # Step 1.2.2: Iterate through all possible positions in route r
+                cₜ = cₛ
                 cₕ = C[cₜ.iₕ]
+                while true
+                    # Step 1.2.2.1: Insert depot node d between tail node nₜ and head node nₕ
+                    insertnode!(d, cₜ, cₕ, r, s)
+                    # Step 1.2.2.2: Compute change in objective function value
+                    z′ = f(s) 
+                    Δ  = z′ - z
+                    # Step 1.2.2.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
+                    if Δ < x x, p = Δ, (cₜ.i, cₕ.i) end
+                    # Step 1.2.2.4: Remove depot node d from its position between tail node nₜ and head node nₕ
+                    removenode!(d, cₜ, cₕ, r, s)
+                    if isequal(cₕ, cₑ) break end
+                    cₜ = cₕ
+                    cₕ = C[cₜ.iₕ]
+                end
+                # Step 1.2.3: Move the depot node to its best position in route r (this could be its original position as well)
+                iₜ, iₕ = p
+                cₜ = C[iₜ]
+                cₕ = C[iₕ]
+                insertnode!(d, cₜ, cₕ, r, s)
+                z = f(s) 
             end
-            # Step 1.2.3: Move the depot node to its best position in route r (this could be its original position as well)
-            iₜ, iₕ = p
-            cₜ = C[iₜ]
-            cₕ = C[iₕ]
-            insertnode!(d, cₜ, cₕ, r, s)
-            z = f(s) 
         end
         # Step 1.3: Revise vectors appropriately
         w[i] = 0

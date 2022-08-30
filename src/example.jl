@@ -23,10 +23,13 @@ let
         Ψᵣ  =   [
                     :randomnode!    , 
                     :randomroute!   ,
+                    :randomvehicle! ,
                     :relatednode!   , 
                     :relatedroute!  ,  
+                    :relatedvehicle!,
                     :worstnode!     ,
-                    :worstroute!    
+                    :worstroute!    ,
+                    :worstvehicle!  
                 ]                       , 
         Ψᵢ  =   [
                     :best!          ,

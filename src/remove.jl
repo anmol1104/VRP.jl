@@ -6,10 +6,13 @@ Return solution removing q customer nodes from solution s using the given `metho
 Available methods include,
 - Random Node Removal       : `:randomnode!`
 - Random Route Removal      : `:randomroute!`
+- Random Vehicle Removal    : `:randomvehicle!` 
 - Related Node Removal      : `:relatednode!`
 - Related Route removal     : `:relatedroute!`
+- Related Vehicle Removal   : `:relatedvehicle!`
 - Worst Node Removal        : `:worstnode!`
 - Worst Route Removal       : `:worstroute!`
+- Worst Vehicle Removal     : `:worstvehicle!`
 
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
@@ -38,6 +41,7 @@ function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
         removenode!(c, nₜ, nₕ, r, s)
         n += 1
         w[i] = 0
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end 
     end
     # Step 2: Return solution
     return s
@@ -67,6 +71,7 @@ function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
         removenode!(c, nₜ, nₕ, r, s)
         n += 1
         x[i] = -Inf
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end 
     end
     # Step 4: Return solution
     return s
@@ -115,6 +120,7 @@ function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
         # Step 1.3: Update cost and selection weight vectors
         x[i] = -Inf
         for (j,v) ∈ pairs(V) ϕ[j] = isequal(r.o, v.i) ? 1 : 0 end
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end 
     end
     # Step 2: Return solution
     return s
@@ -127,7 +133,7 @@ function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     # Step 1: Iteratively select a random route and remove customer nodes from it until at least q customer nodes are removed
     n = 0
     w = isopt.(R)
@@ -146,6 +152,7 @@ function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
             if isequal(nₕ, d) break end
         end
         w[i] = 0
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end
     end
     # Step 2: Return solution
     return s
@@ -157,7 +164,7 @@ function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     # Step 1: Randomly select a pivot route
     j = sample(rng, eachindex(R), Weights(isopt.(R)))  
     # Step 2: For each route, evaluate relatedness to this pivot route
@@ -182,6 +189,7 @@ function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
         end 
         x[i] = -Inf
         w[i] = 0
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end
     end
     # Step 4: Return solution
     return s
@@ -193,7 +201,7 @@ function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    R = [r for v ∈ V for r ∈ v.R]
     # Step 1: Evaluate utilization of each route
     x = fill(Inf, eachindex(R))
     for (i,r) ∈ pairs(R)
@@ -221,6 +229,121 @@ function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
         end
         x[i] = Inf
         w[i] = 0
+        if deleteroute(r) deleteat!(v.R, findfirst(isequal(r), v.R)) end
+    end
+    # Step 3: Return solution
+    return s
+end
+    
+# -------------------------------------------------- VEHICLE REMOVAL --------------------------------------------------
+# Random Vehicle Removal
+# Iteratively select a random vehicle and remove customer nodes from it until at least q customer nodes are removed
+function randomvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
+    D = s.D
+    C = s.C
+    V = s.V
+    # Step 1: Iteratively select a random vehicle and remove customer nodes from it until at least q customer nodes are removed
+    n = 0
+    w = isopt.(V)
+    while n < q
+        if isone(sum(w)) break end
+        i = sample(rng, eachindex(V), Weights(w))
+        v = V[i]
+        d = D[v.o]
+        for r ∈ v.R
+            while true
+                nₜ = d
+                c  = C[r.iₛ]
+                nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
+                removenode!(c, nₜ, nₕ, r, s)
+                n += 1
+                if isequal(nₕ, d) break end
+            end
+        end
+        w[i] = 0
+        deleteat!(v.R, deleteroute.(v.R))
+    end
+    # Step 2: Return solution
+    return s
+end
+
+function relatedvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
+    D = s.D
+    C = s.C
+    V = s.V
+    # Step 1: Select a random closed depot node
+    j = sample(rng, eachindex(V), Weights(isopt.(V)))
+    # Step 2: For each vehicle, evaluate relatedness to this pivot vehicle
+    x = fill(-Inf, eachindex(V))
+    for (i,v) ∈ pairs(V) x[i] = !isopt(v) ? -Inf : relatedness(V[i], V[j]) end
+    # Step 3: Remove at least q customers from the most related vehicles to this pivot vehicle
+    n = 0
+    w = isopt.(V)
+    while n < q
+        if isone(sum(w)) break end
+        i = argmax(x)
+        v = V[i]
+        d = D[v.o]
+        for r ∈ v.R
+            while true
+                nₜ = d
+                c  = C[r.iₛ]
+                nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
+                removenode!(c, nₜ, nₕ, r, s)
+                n += 1
+                if isequal(nₕ, d) break end
+            end
+        end
+        x[i] = -Inf
+        w[i] = 0
+        deleteat!(v.R, deleteroute.(v.R))
+    end
+    # Step 4: Return solution
+    return s
+end
+
+# Worst Vehicle Removal
+# Iteratively select low-utilization vehicle and remove customer nodes from it until at least q customer nodes are removed
+function worstvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
+    D = s.D
+    C = s.C
+    V = s.V
+    # Step 1: Evaluate utilization for each vehicle
+    x = fill(Inf, eachindex(V))
+    for v ∈ V
+        if !isopt(v) continue end
+        a = 0
+        b = 0
+        i = v.i
+        for r ∈ v.R
+            a += r.q
+            b += v.q
+        end
+        u = a/b
+        x[i] = u
+    end
+    # Step 2: Iteratively select low-utilization route and remove customer nodes from it until at least q customer nodes are removed
+    n = 0
+    w = isopt.(V)
+    while n < q
+        if isone(sum(w)) break end
+        i = argmin(x)
+        v = V[i]
+        d = D[v.o]
+        for r ∈ v.R
+            if !isopt(r) continue end
+            while true
+                nₜ = d
+                c  = C[r.iₛ]
+                nₕ = isequal(r.iₑ, c.i) ? D[c.iₕ] : C[c.iₕ]
+                removenode!(c, nₜ, nₕ, r, s)
+                n += 1
+                if isequal(nₕ, d) break end
+            end
+        end
+        x[i] = Inf
+        w[i] = 0
+        deleteat!(v.R, deleteroute.(v.R))
     end
     # Step 3: Return solution
     return s

@@ -2,10 +2,10 @@
 """
     initialsolution([rng], instance, method)
 
-Returns initial VRP solution for the given `instance` using the given `method`.
+Returns initial LRP solution for the given `instance` using the given `method`.
 
 Available methods include,
-- Random initialization                 : `:random`
+- Random Initialization                 : `:random`
 
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
@@ -21,7 +21,8 @@ function random(rng::AbstractRNG, instance)
     D = s.D
     C = s.C
     V = s.V
-    R = [v.r for v ∈ V]
+    for d ∈ D for v ∈ d.V push!(v.R, Route(rand(rng, 1:M), v, d)) end end
+    R = [r for v ∈ V for r ∈ v.R]
     # Step 1: Initialize
     I = eachindex(C)
     J = eachindex(R)
@@ -40,5 +41,6 @@ function random(rng::AbstractRNG, instance)
         w[i] = 0
     end
     # Step 3: Return initial solution
+    for v ∈ V deleteat!(v.R, deleteroute.(v.R)) end
     return s
 end

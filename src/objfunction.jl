@@ -9,12 +9,13 @@ function f(s::Solution)
     for d ∈ s.D
         qᵈ = 0
         for v ∈ d.V 
-            if !isopt(v) continue end
-            r  = v.r
-            qᵛ = r.q
-            qᵈ += qᵛ
-            z  += r.l * v.c
-            γ  += (qᵛ > v.q) * (qᵛ - v.q)
+            for r ∈ v.R 
+                if !isopt(r) continue end
+                qᵛ = r.q
+                qᵈ += qᵛ
+                z += r.l * v.c
+                γ += (qᵛ > v.q) * (qᵛ - v.q)
+            end
         end
         γ += (qᵈ > d.q) * (qᵈ - d.q)
     end

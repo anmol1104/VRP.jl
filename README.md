@@ -3,13 +3,14 @@
 
 # Vehicle Routing Problem (VRP)
 
-multi-depot vehicle routing problem with heterogeneous fleet of single-route delivery vehicles
+multi-depot vehicle routing problem with heterogeneous fleet of multi-route delivery vehicles
 
 Given, a graph `G = (D, C, A, V)` with 
 set of depots `D` with capacity `d.q`, and fleet `d.V`, for every depot `d ∈ D`; 
-set of customer nodes `C` with demand `c.q` for every customer `c ∈ C`; and
-set of arcs `A = {(i,j); i,j ∈ N={D∪C}}` with length `l` for every arc `(i,j) ∈ A`;
-the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for depot and vehicle capacities.  
+set of customer nodes `C` with demand `c.q` for every customer `c ∈ C`;
+set of arcs `A = {(i,j); i,j ∈ N={D∪C}}` with length `l` for every arc `(i,j) ∈ A`; and 
+set of vehicles `V` with capacity `v.q`, and operational cost `v.c`, for every vehicle `v ∈ V`, 
+the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for vehicle capacities.  
 
 This package uses Adaptive Large Neighborhood Search (ALNS) algorithm to find an optimal solution for the Locatio Routing Problem given ALNS optimization 
 parameters,
@@ -38,10 +39,13 @@ and an initial solution developed using one of the following methods,
 The ALNS metaheuristic iteratively removes a set of nodes using,
 - Random Node Removal       : `:randomnode!`
 - Random Route Removal      : `:randomroute!`
+- Random Vehicle Removal    : `:randomvehicle!`
 - Related Node Removal      : `:relatednode!`
 - Related Route removal     : `:relatedroute!`
+- Related Vehicle Removal   : `:relatedvehicle!`
 - Worst Node Removal        : `:worstnode!`
 - Worst Route Removal       : `:worstroute!`
+- Worst Vehicle Removal     : `:worstvehicle!`
 
 and consequently inserts removed nodes using,
 - Best Insertion    : `best!`

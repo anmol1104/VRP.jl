@@ -113,15 +113,16 @@ function vectorize(s::Solution)
         if !isopt(d) continue end
         for v ∈ d.V
             if !isopt(v) continue end
-            r = v.r
-            if !isopt(r) continue end
-            cₛ, cₑ = C[r.iₛ], C[r.iₑ]
-            push!(Z[i], d.i)
-            c = cₛ
-            while true
-                push!(Z[i], c.i)
-                if isequal(c, cₑ) break end
-                c = C[c.iₕ]
+            for r ∈ v.R
+                if !isopt(r) continue end
+                cₛ, cₑ = C[r.iₛ], C[r.iₑ]
+                push!(Z[i], d.i)
+                c = cₛ
+                while true
+                    push!(Z[i], c.i)
+                    if isequal(c, cₑ) break end
+                    c = C[c.iₕ]
+                end
             end
         end
         push!(Z[i], d.i)
