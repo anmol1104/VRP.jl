@@ -102,7 +102,8 @@ end
 """
     vectorize(s::Solution)
 
-Returns solution as a sequence of nodes in the order of visits.
+Returns solution as a sequence of nodes in 
+the order of visits.
 """
 function vectorize(s::Solution)
     D = s.D
