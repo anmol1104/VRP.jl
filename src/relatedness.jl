@@ -1,9 +1,10 @@
 # Relatedness
 function relatedness(c₁::CustomerNode, c₂::CustomerNode, a::Arc)
     l = a.l
+    t = (abs(c₁.tₗ - c₂.tₗ) - abs(c₁.tₑ - c₂.tₑ))
     q = abs(c₁.q - c₂.q)
     ϕ = !isequal(c₁, c₂) & isequal(c₁.r, c₂.r)
-    z = 1/(l - q - ϕ)
+    z = 1/(l - t - q - ϕ)
     return z
 end
 function relatedness(r₁::Route, r₂::Route)

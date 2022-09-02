@@ -91,8 +91,20 @@ function best!(rng::AbstractRNG, s::Solution)
             append!(p, fill((0, 0), (I,1)))
             push!(ϕ, 1)
         end
+        if addvehicle(d,s)
+            v = Vehicle(length(V)+1, d.i, v.q, v.s, v.τᵈ, v.τᶜ, v.πₒ, Route[])
+            r = Route(rand(rng, 1:M), v, d)
+            push!(d.V, v)
+            push!(V, v)
+            push!(v.R, r) 
+            push!(R, r)
+            append!(x, fill(Inf, (I,1)))
+            append!(p, fill((0, 0), (I,1)))
+            push!(ϕ, 1)
+        end
     end
     # Step 3: Return initial solution
+    for d ∈ D deleteat!(d.V, deletevehicle.(d.V)) end
     for v ∈ V deleteat!(v.R, deleteroute.(v.R)) end
     return s
 end
@@ -171,8 +183,20 @@ function greedy!(rng::AbstractRNG, s::Solution)
             append!(p, fill((0, 0), (I,1)))
             push!(ϕ, 1)
         end
+        if addvehicle(d,s)
+            v = Vehicle(length(V)+1, d.i, v.q, v.s, v.τᵈ, v.τᶜ, v.πₒ, Route[])
+            r = Route(rand(rng, 1:M), v, d)
+            push!(d.V, v)
+            push!(V, v)
+            push!(v.R, r) 
+            push!(R, r)
+            append!(x, fill(Inf, (I,1)))
+            append!(p, fill((0, 0), (I,1)))
+            push!(ϕ, 1)
+        end
     end
     # Step 3: Return initial solution
+    for d ∈ D deleteat!(d.V, deletevehicle.(d.V)) end
     for v ∈ V deleteat!(v.R, deleteroute.(v.R)) end
     return s
 end
@@ -183,7 +207,6 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
     if all(isclose, s.C) return s end
     D = s.D
     C = s.C
-    V = s.V
     V = s.V
     for d ∈ D for v ∈ d.V if addroute(v,s) push!(v.R, Route(rand(rng, 1:M), v, d)) end end end
     R = [r for v ∈ V for r ∈ v.R]
@@ -285,8 +308,20 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
             append!(p, fill((0, 0), (I,1)))
             push!(ϕ, 1)
         end
+        if addvehicle(d,s)
+            v = Vehicle(length(V)+1, d.i, v.q, v.s, v.τᵈ, v.τᶜ, v.πₒ, Route[])
+            r = Route(rand(rng, 1:M), v, d)
+            push!(d.V, v)
+            push!(V, v)
+            push!(v.R, r) 
+            push!(R, r)
+            append!(x, fill(Inf, (I,1)))
+            append!(p, fill((0, 0), (I,1)))
+            push!(ϕ, 1)
+        end
     end
     # Step 3: Return initial solution
+    for d ∈ D deleteat!(d.V, deletevehicle.(d.V)) end
     for v ∈ V deleteat!(v.R, deleteroute.(v.R)) end
     return s
 end

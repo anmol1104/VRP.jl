@@ -15,7 +15,7 @@ function build(instance)
     end
     # Customer nodes
     file = joinpath(dirname(@__DIR__), "instances/$instance/customer_nodes.csv")
-    csv = CSV.File(file, types=[Int64, Float64, Float64, Int64])
+    csv = CSV.File(file, types=[Int64, Float64, Float64, Int64, Float64, Float64])
     df = DataFrame(csv)
     ix = (df[1,1]:df[nrow(df),1])::UnitRange{Int64}
     C = OffsetVector{CustomerNode}(undef, ix)
@@ -24,9 +24,13 @@ function build(instance)
         x = df[k,2]::Float64
         y = df[k,3]::Float64
         q = df[k,4]::Int64
+        tₑ = df[k,5]::Float64
+        tₗ = df[k,6]::Float64
         iₜ = 0
         iₕ = 0
-        c = CustomerNode(i, x, y, q, iₜ, iₕ, NullRoute)
+        tₐ = Inf
+        tᵈ = Inf
+        c = CustomerNode(i, x, y, q, tₑ, tₗ, iₜ, iₕ, tₐ, tᵈ, NullRoute)
         C[i] = c
     end
     # Arcs
@@ -47,15 +51,18 @@ function build(instance)
     end
     # Vehicles
     file = joinpath(dirname(@__DIR__), "instances/$instance/vehicles.csv")
-    csv = CSV.File(file, types=[Int64, Int64, Int64, Float64])
+    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Float64, Float64, Float64])
     df = DataFrame(csv)
     V = Vector{Vehicle}(undef, nrow(df))
     for k ∈ 1:nrow(df)
         i = df[k,1]::Int64
         o = df[k,2]::Int64
         q = df[k,3]::Int64
-        c = df[k,4]::Float64
-        v = Vehicle(i, o, q, c, Route[])
+        s = df[k,4]::Int64
+        τᵈ = df[k,5]::Float64
+        τᶜ = df[k,6]::Float64
+        πₒ = df[k,7]::Float64
+        v = Vehicle(i, o, q, s, τᵈ, τᶜ, πₒ, Route[])
         V[k] = v
         d = D[v.o]
         push!(d.V, v)
