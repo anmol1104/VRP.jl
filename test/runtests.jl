@@ -7,10 +7,10 @@ let
     # Vehicle Routing Problem
     @testset "VRP" begin
         χ   = ALNSParameters(
-            k̲   =   20                      ,
-            l̲   =   20                      ,
-            l̅   =   100                     ,
-            k̅   =   200                     ,
+            k̲   =   30                      ,
+            l̲   =   30                      ,
+            l̅   =   150                     ,
+            k̅   =   300                     ,
             Ψᵣ  =   [
                         :randomnode!    , 
                         :randomroute!   ,
