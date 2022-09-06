@@ -44,7 +44,7 @@ let
             μ̅   =   0.4                     ,
             ρ   =   0.1
         )
-        instances = ["m-n101-k10", "tai150a", "cmt10", "x-n251-k28", "x-n303-k21"]
+        instances = ["cmt10"]
         for instance ∈ instances
             println("\nSolving $instance")
             sₒ = initialsolution(instance, :random)     

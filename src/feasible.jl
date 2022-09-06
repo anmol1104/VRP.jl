@@ -15,13 +15,13 @@ function isfeasible(s::Solution)
         for v ∈ d.V
             for r ∈ v.R
                 if !isopt(r) continue end
-                cₛ = C[r.iₛ]
-                cₑ = C[r.iₑ]
-                c  = cₛ
+                cˢ = C[r.iˢ]
+                cᵉ = C[r.iᵉ]
+                c  = cˢ
                 while true
-                    x[c.i] += 1
-                    if isequal(c, cₑ) break end
-                    c = C[c.iₕ]
+                    x[c.iⁿ] += 1
+                    if isequal(c, cᵉ) break end
+                    c = C[c.iʰ]
                 end
             end
         end
@@ -40,5 +40,6 @@ function isfeasible(s::Solution)
         end
         if qᵈ > d.q return false end
     end
+    for c ∈ C if c.tᵃ > c.tˡ return false end end
     return true
 end
