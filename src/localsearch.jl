@@ -20,7 +20,7 @@ localsearch!(k̅::Int64, s::Solution, method::Symbol) = localsearch!(Random.GLOB
 # Iteratively move a randomly seceted customer node in its best position if the move 
 # results in reduction in objective function value for k̅ iterations until improvement
 function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
-    zᵒ = f(s)
+    zᵒ= f(s)
     D = s.D
     C = s.C
     # Step 1: Initialize
@@ -36,7 +36,7 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
         i = sample(rng, I, OffsetWeights(w))
         c = C[i]
         # Step 2.2: Remove this node from its position between tail node nᵗ and head node nʰ
-        r = c.r
+        r  = c.r
         nᵗ = isequal(r.iˢ, c.iⁿ) ? D[c.iᵗ] : C[c.iᵗ]
         nʰ = isequal(r.iᵉ, c.iⁿ) ? D[c.iʰ] : C[c.iʰ] 
         removenode!(c, nᵗ, nʰ, r, s)
@@ -87,7 +87,7 @@ end
 # Iteratively take 2 arcs and reconfigure them (total possible reconfigurations 2²-1 = 3) if the 
 # reconfigure results in reduction in objective function value for k̅ iterations until improvement
 function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
-    z = f(s)
+    zᵒ= f(s)
     D = s.D
     C = s.C
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
@@ -132,7 +132,7 @@ function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
         end
         # Step 1.3: Compute change in objective function value
         z′ = f(s)
-        Δ  = z′ - z 
+        Δ  = z′ - zᵒ
         # Step 1.4: If the reconfiguration results in reduction in objective function value then go to step 2, else go to step 1.5
         if Δ < 0 return s end
         # Step 1.5: Reconfigure back to the original state
@@ -155,10 +155,9 @@ function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
     return s
 end
 function interopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
-    z = f(s)
+    zᵒ= f(s)
     D = s.D
     C = s.C
-    V = [v for d ∈ D for v ∈ d.V]
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
     w = isopt.(R)
     # Step 1: Iterate for k̅ iterations until improvement
@@ -222,7 +221,7 @@ function interopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
         end
         # Step 1.3: Compute change in objective function value
         z′ = f(s)
-        Δ  = z′ - z 
+        Δ  = z′ - zᵒ
         # Step 1.4: If the reconfiguration results in reduction in objective function value then go to step 2, else go to step 1.5
         if Δ < 0 break end
         # Step 1.5: Reconfigure back to the original state
@@ -262,8 +261,8 @@ end
 # Iteratively split routes by moving a randomly selected depot node at best position if the
 # split results in reduction in objective function value for k̅ iterations until improvement
 function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
-    z = f(s)
-    z̅ = z
+    zᵒ = f(s)
+    z′ = zᵒ
     D = s.D
     C = s.C
     w = ones(Int64, eachindex(D))
@@ -289,8 +288,8 @@ function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
                     # Step 1.2.2.1: Insert depot node d between tail node nᵗ and head node nʰ
                     insertnode!(d, cᵗ, cʰ, r, s)
                     # Step 1.2.2.2: Compute change in objective function value
-                    z′ = f(s) 
-                    Δ  = z′ - z
+                    z″ = f(s) 
+                    Δ  = z″ - z′
                     # Step 1.2.2.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
                     if Δ < x x, p = Δ, (cᵗ.iⁿ, cʰ.iⁿ) end
                     # Step 1.2.2.4: Remove depot node d from its position between tail node nᵗ and head node nʰ
@@ -304,12 +303,12 @@ function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
                 cᵗ = C[iᵗ]
                 cʰ = C[iʰ]
                 insertnode!(d, cᵗ, cʰ, r, s)
-                z = f(s) 
+                z′ = f(s) 
             end
         end
         # Step 1.3: Revise vectors appropriately
         w[i] = 0
-        Δ = z - z̅
+        Δ = z′ - zᵒ
         # Step 1.4: If the overall change results in reduction in objective function value, then go to step 2, else return to step 1.1
         Δ ≥ 0 ? continue : break
     end
@@ -321,7 +320,7 @@ end
 # Iteratively swap two randomly selected customer nodes if the swap results
 # in reduction in objective function value for k̅ iterations until improvement
 function swap!(rng::AbstractRNG, k̅::Int64, s::Solution)
-    z = f(s)
+    zᵒ= f(s)
     D = s.D
     C = s.C
     # Step 1: Iterate for k̅ iterations until improvement
@@ -352,7 +351,7 @@ function swap!(rng::AbstractRNG, k̅::Int64, s::Solution)
         end
         # Step 1.2: Compute change in objective function value
         z′ = f(s)
-        Δ  = z′ - z 
+        Δ  = z′ - zᵒ 
         # Step 1.3: If the swap results in reduction in objective function value then go to step 2, else go to step 1.4
         if Δ < 0 break end
         # Step 1.4: Reswap the two customer nodes and go to step 1.1

@@ -1,4 +1,4 @@
-# Builds instance as a graph with set of depot nodes, customer nodes, arcs, and vehicles.
+# Builds instance as a graph with set of depot nodes, customer nodes, and arcs.
 function build(instance)
     # Depot nodes
     file = joinpath(dirname(@__DIR__), "instances/$instance/depot_nodes.csv")
