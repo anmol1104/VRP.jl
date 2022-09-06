@@ -32,11 +32,12 @@ mutable struct Route
 end
     
 @doc """
-    Vehicle(iᵛ::Int64, iᵈ::Int64, q::Int64, s::Int64, τᵈ::Float64, τᶜ::Float64, πᵒ::Float64, R::Vector{Route})
+    Vehicle(iᵛ::Int64, iᵈ::Int64, q::Int64, s::Int64, τᵈ::Float64, τᶜ::Float64, πᵒ::Float64, πᶠ::Float64, R::Vector{Route})
 
 A `Vehicle` is a mode of delivery with index `iᵛ`, depot node index `iᵈ`, capacity 
 `q`, speed `s`, service time `τᵈ` at depot node and `τᶜ` at customer node, 
-operational cost `πₒ` per unit length, and set of routes `R`.
+operational cost `πₒ` per unit distance traveled, fixed cost`πᶠ`, and set of routes 
+`R`.
 """
 mutable struct Vehicle
     iᵛ::Int64                                                                       # Vehicle index
@@ -46,6 +47,7 @@ mutable struct Vehicle
     τᵈ::Float64                                                                     # Depot node service time per demand quantity
     τᶜ::Float64                                                                     # Customer node service time per demand quantity
     πᵒ::Float64                                                                     # Operational cost (per unit length)
+    πᶠ::Float64                                                                     # Fixed cost
     R::Vector{Route}                                                                # Vector of vehicle routes
 end
 

@@ -33,12 +33,14 @@ function best!(rng::AbstractRNG, s::Solution)
     # Step 2: Iterate until all open customer nodes have been inserted into the route
     for _ ∈ I
         # Step 2.1: Iterate through all open customer nodes and every possible insertion position in each route
-        zᵒ = f(s)
+        zᵒ = f(s; fixed=false)
         for (i,c) ∈ pairs(L)
             if !isopen(c) continue end
             for (j,r) ∈ pairs(R)
                 if iszero(ϕ[j]) continue end
                 d = s.D[r.iᵈ]
+                v = d.V[r.iᵛ]
+                m = length(v.R)
                 nˢ = isopt(r) ? C[r.iˢ] : D[r.iˢ]
                 nᵉ = isopt(r) ? C[r.iᵉ] : D[r.iᵉ]
                 nᵗ = d
@@ -47,7 +49,7 @@ function best!(rng::AbstractRNG, s::Solution)
                     # Step 2.1.1: Insert customer node c between tail node nᵗ and head node nʰ in route r
                     insertnode!(c, nᵗ, nʰ, r, s)
                     # Step 2.1.2: Compute the insertion cost
-                    z⁺ = f(s)
+                    z⁺ = f(s; fixed=false) + c.q * v.πᶠ/(m * v.q)
                     Δ  = z⁺ - zᵒ
                     # Step 2.1.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
                     if Δ < x[i,j] x[i,j], p[i,j] = Δ, (nᵗ.iⁿ, nʰ.iⁿ) end
@@ -131,12 +133,14 @@ function greedy!(rng::AbstractRNG, s::Solution)
     # Step 2: Iterate until all open customer nodes have been inserted into the route
     for _ ∈ I
         # Step 2.1: Iterate through all open customer nodes and every possible insertion position in each route
-        zᵒ = f(s)
+        zᵒ = f(s; fixed=false)
         for (i,c) ∈ pairs(L)
             if !isopen(c) continue end
             for (j,r) ∈ pairs(R)
                 if iszero(ϕ[j]) continue end
                 d = s.D[r.iᵈ]
+                v = d.V[r.iᵛ]
+                m = length(v.R)
                 nˢ = isopt(r) ? C[r.iˢ] : D[r.iˢ]
                 nᵉ = isopt(r) ? C[r.iᵉ] : D[r.iᵉ]
                 nᵗ = d
@@ -145,7 +149,7 @@ function greedy!(rng::AbstractRNG, s::Solution)
                     # Step 2.1.1: Insert customer node c between tail node nᵗ and head node nʰ in route r
                     insertnode!(c, nᵗ, nʰ, r, s)
                     # Step 2.1.2: Compute the insertion cost
-                    z⁺ = f(s)
+                    z⁺ = f(s; fixed=false) + c.q * v.πᶠ/(m * v.q)
                     Δ  = z⁺ - zᵒ
                     # Step 2.1.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
                     if Δ < x[i,j] x[i,j], p[i,j] = Δ, (nᵗ.iⁿ, nʰ.iⁿ) end
@@ -230,13 +234,15 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
     # Step 2: Iterate until all open customer nodes have been inserted into the route
     for _ ∈ I
         # Step 2.1: Iterate through all open customer nodes and every route
-        zᵒ = f(s)
+        zᵒ = f(s; fixed=false)
         for (i,c) ∈ pairs(L)
             if !isopen(c) continue end
             for (j,r) ∈ pairs(R)
                 # Step 2.1.1: Iterate through all possible insertion position in route r
                 if iszero(ϕ[j]) continue end
                 d = s.D[r.iᵈ]
+                v = d.V[r.iᵛ]
+                m = length(v.R)
                 nˢ = isopt(r) ? C[r.iˢ] : D[r.iˢ]
                 nᵉ = isopt(r) ? C[r.iᵉ] : D[r.iᵉ]
                 nᵗ = d
@@ -245,7 +251,7 @@ function regretN!(rng::AbstractRNG, N::Int64, s::Solution)
                     # Step 2.1.1.1: Insert customer node c between tail node nᵗ and head node nʰ in route r
                     insertnode!(c, nᵗ, nʰ, r, s)
                     # Step 2.1.1.2: Compute the insertion cost
-                    z⁺ = f(s)
+                    z⁺ = f(s; fixed=false) + c.q * v.πᶠ/(m * v.q)
                     Δ  = z⁺ - zᵒ
                     # Step 2.1.1.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
                     if Δ < x[i,j] x[i,j], p[i,j] = Δ, (nᵗ.iⁿ, nʰ.iⁿ) end

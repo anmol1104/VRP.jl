@@ -51,7 +51,7 @@ function build(instance)
     end
     # Vehicles
     file = joinpath(dirname(@__DIR__), "instances/$instance/vehicles.csv")
-    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Float64, Float64, Float64])
+    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Float64, Float64, Float64, Float64])
     df = DataFrame(csv)
     for k ∈ 1:nrow(df)
         iᵛ = df[k,1]::Int64
@@ -61,7 +61,8 @@ function build(instance)
         τᵈ = df[k,5]::Float64
         τᶜ = df[k,6]::Float64
         πᵒ = df[k,7]::Float64
-        v  = Vehicle(iᵛ, iᵈ, q, s, τᵈ, τᶜ, πᵒ, Route[])
+        πᶠ = df[k,8]::Float64
+        v  = Vehicle(iᵛ, iᵈ, q, s, τᵈ, τᶜ, πᵒ, πᶠ, Route[])
         d  = D[iᵈ]
         push!(d.V, v)
     end
