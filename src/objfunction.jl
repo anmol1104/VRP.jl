@@ -2,24 +2,30 @@
 """
     f(s::Solution; fixed=true, operational=true, penalty=true)
 
-Objective function evaluation for solution `s`.
-Include `fixed`, `operational`, and `penalty` cost for constriant 
-violation if `true`.
+Objective function evaluation for solution `s`. Include `fixed`, 
+`operational`, and `penalty` cost for constriant violation if `true`.
 """
-function f(s::Solution; fixed=true, operational=true, constraint=true)
+function f(s::Solution; fixed=true, operational=true, penalty=true)
     πᶠ, πᵒ, πᵖ = 0., 0., 0.
-    ϕᶠ, ϕᵒ, ϕᵖ = fixed, operational, constraint
+    ϕᶠ, ϕᵒ, ϕᵖ = fixed, operational, penalty
     for d ∈ s.D
         qᵈ = 0
         for v ∈ d.V
             πᶠ += v.πᶠ
+            tˢ = 0.
+            tᵉ = 0.
             for r ∈ v.R 
                 if !isopt(r) continue end
-                qᵛ  = r.q
+                qᵛ = r.q
+                lᵛ = r.l
+                tᵉ = r.tᵉ
                 qᵈ += qᵛ
                 πᵒ += r.l * v.πᵒ
                 πᵖ += (qᵛ > v.q) * (qᵛ - v.q)
+                πᵖ += (lᵛ > v.l) * (lᵛ - v.l)
             end
+            tᵛ = tᵉ - tˢ
+            πᵖ += (tᵛ > v.w) * (tᵛ - v.w)
         end
         πᵖ += (qᵈ > d.q) * (qᵈ - d.q)
     end

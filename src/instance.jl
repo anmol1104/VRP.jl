@@ -6,12 +6,12 @@ function build(instance)
     df = DataFrame(csv)
     D = Vector{DepotNode}(undef, nrow(df))
     for k ∈ 1:nrow(df)
-        i  = df[k,1]::Int64
+        iⁿ = df[k,1]::Int64
         x  = df[k,2]::Float64
         y  = df[k,3]::Float64
         q  = df[k,4]::Int64 
-        d  = DepotNode(i, x, y, q, Vehicle[])
-        D[i] = d
+        d  = DepotNode(iⁿ, x, y, q, Vehicle[])
+        D[iⁿ] = d
     end
     # Customer nodes
     file = joinpath(dirname(@__DIR__), "instances/$instance/customer_nodes.csv")
@@ -20,18 +20,18 @@ function build(instance)
     ix = (df[1,1]:df[nrow(df),1])::UnitRange{Int64}
     C = OffsetVector{CustomerNode}(undef, ix)
     for k ∈ 1:nrow(df)
-        i = df[k,1]::Int64
-        x = df[k,2]::Float64
-        y = df[k,3]::Float64
-        q = df[k,4]::Int64
+        iⁿ = df[k,1]::Int64
+        x  = df[k,2]::Float64
+        y  = df[k,3]::Float64
+        q  = df[k,4]::Int64
         tᵉ = df[k,5]::Float64
         tˡ = df[k,6]::Float64
         iᵗ = 0
         iʰ = 0
         tᵃ = Inf
         tᵈ = Inf
-        c = CustomerNode(i, x, y, q, tᵉ, tˡ, iᵗ, iʰ, tᵃ, tᵈ, NullRoute)
-        C[i] = c
+        c  = CustomerNode(iⁿ, x, y, q, tᵉ, tˡ, iᵗ, iʰ, tᵃ, tᵈ, NullRoute)
+        C[iⁿ] = c
     end
     # Arcs
     A = Dict{Tuple{Int64,Int64},Arc}()
@@ -51,18 +51,21 @@ function build(instance)
     end
     # Vehicles
     file = joinpath(dirname(@__DIR__), "instances/$instance/vehicles.csv")
-    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Float64, Float64, Float64, Float64])
+    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Int64, Float64, Float64, Float64, Float64, Float64, Int64])
     df = DataFrame(csv)
     for k ∈ 1:nrow(df)
         iᵛ = df[k,1]::Int64
         iᵈ = df[k,2]::Int64
         q  = df[k,3]::Int64
-        s  = df[k,4]::Int64
-        τᵈ = df[k,5]::Float64
-        τᶜ = df[k,6]::Float64
-        πᵒ = df[k,7]::Float64
-        πᶠ = df[k,8]::Float64
-        v  = Vehicle(iᵛ, iᵈ, q, s, τᵈ, τᶜ, πᵒ, πᶠ, Route[])
+        l  = df[k,4]::Int64
+        s  = df[k,5]::Int64
+        τᶠ = df[k,6]::Float64
+        τᵈ = df[k,7]::Float64
+        τᶜ = df[k,8]::Float64
+        πᵒ = df[k,9]::Float64
+        πᶠ = df[k,10]::Float64
+        w  = df[k,11]::Int64
+        v  = Vehicle(iᵛ, iᵈ, q, l, s, τᶠ, τᵈ, τᶜ, πᵒ, πᶠ, w, Route[])
         d  = D[iᵈ]
         push!(d.V, v)
     end
