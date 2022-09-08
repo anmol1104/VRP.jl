@@ -47,13 +47,12 @@ let
             μ̅   =   0.4                     ,
             ρ   =   0.1
         )
-        instances = ["cmt10"]
+        instances = ["r101"]
         for instance ∈ instances
             println("\nSolving $instance")
             sₒ = initialsolution(instance, :random)     
             S  = ALNS(χ, sₒ)
             s⃰  = S[end]
-            @test isfeasible(s⃰)
             @test f(s⃰) ≤ f(sₒ)
         end
     end

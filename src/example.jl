@@ -5,7 +5,7 @@ using Random
 let
 # Developing an optimal solution 
     # Define instance
-    instance = "x-n303-k21";
+    instance = "r101";
     # Visualize instance
     display(visualize(instance))
     # Define a random number generator
