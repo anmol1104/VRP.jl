@@ -35,9 +35,9 @@ end
     Vehicle(iᵛ::Int64, iᵈ::Int64, q::Int64, l::Int64, s::Int64, τᶠ::Float64, τᵈ::Float64, τᶜ::Float64, πᵒ::Float64, πᶠ::Float64, w::Int64, R::Vector{Route})
 
 A `Vehicle` is a mode of delivery with index `iᵛ`, depot node index `iᵈ`, capacity 
-`q`, range `l`, speed `s`, refueling time `τᶠ`, service time `τᵈ` at depot node and 
-`τᶜ` at customer node (per unit demand), operational cost `πₒ` per unit distance 
-traveled, fixed cost`πᶠ`, working hours `w`, and set of routes `R`.
+`q`, range `l`, speed `s`, refueling time `τᶠ`, service time `τᵈ` at depot node (per 
+unit demand), service time `τᶜ` at customer node, operational cost `πₒ` per unit 
+distance traveled, fixed cost`πᶠ`, working hours `w`, and set of routes `R`.
 """
 mutable struct Vehicle
     iᵛ::Int64                                                                       # Vehicle index
@@ -47,7 +47,7 @@ mutable struct Vehicle
     s::Int64                                                                        # Vehicle speed
     τᶠ::Float64                                                                     # Re-fueling time
     τᵈ::Float64                                                                     # Depot node service time per unit demand
-    τᶜ::Float64                                                                     # Customer node service time per unit demand
+    τᶜ::Float64                                                                     # Customer node service time
     πᵒ::Float64                                                                     # Operational cost (per unit length)
     πᶠ::Float64                                                                     # Fixed cost
     w::Int64                                                                        # Working hours
