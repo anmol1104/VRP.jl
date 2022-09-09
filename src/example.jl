@@ -60,19 +60,21 @@ let
     S = ALNS(rng, χ, sₒ);
     s⃰ = S[end]; 
 # Fetch objective function values
-    println("Initial: $(f(sₒ; fixed=false, penalty=false))")
-    println("Optimal: $(f(s⃰; fixed=false, penalty=false))")
+    println("Objective function value:")
+    println("   Initial: $(f(sₒ; fixed=false, penalty=false))")
+    println("   Optimal: $(f(s⃰; fixed=false, penalty=false))")
 # Check if the solutions are feasible
-    println("Initial: $(isfeasible(sₒ))")
-    println("Optimal: $(isfeasible(s⃰))")
+    println("Solution feasibility:")
+    println("   Initial: $(isfeasible(sₒ))")
+    println("   Optimal: $(isfeasible(s⃰))")
 # Visualizations
     # Visualize initial solution
     display(visualize(sₒ)) 
     # Visualize best solution
     display(visualize(s⃰))
     # Animate ALNS solution search process from inital to best solution
-    display(animate(S))
+    #display(animate(S))
     # Show convergence plot
-    display(plotconv(S))
+    #display(plotconv(S))
     return
 end
