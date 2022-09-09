@@ -11,6 +11,7 @@ function f(s::Solution; fixed=true, operational=true, penalty=true)
     for d ∈ s.D
         qᵈ = 0
         for v ∈ d.V
+            if !isopt(v) continue end 
             πᶠ += v.πᶠ
             tˢ = 0.
             tᵉ = 0.
