@@ -21,6 +21,7 @@ remove!(rng::AbstractRNG, q::Int64, s::Solution, method::Symbol)::Solution = get
 remove!(q::Int64, s::Solution, method::Symbol) = remove!(Random.GLOBAL_RNG, q, s, method)
 
 # -------------------------------------------------- NODE REMOVAL --------------------------------------------------
+# Random Node Removal
 # Randomly select q customer nodes to remove
 function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
