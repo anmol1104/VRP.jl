@@ -58,10 +58,13 @@ let
     );
     # Run ALNS and fetch best solution
     S = ALNS(rng, χ, sₒ);
-    s⃰ = S[end];          
+    s⃰ = S[end]; 
 # Fetch objective function values
-    println("Initial: $(f(sₒ))")
-    println("Optimal: $(f(s⃰))")
+    println("Initial: $(f(sₒ; fixed=false, penalty=false))")
+    println("Optimal: $(f(s⃰; fixed=false, penalty=false))")
+# Check if the solutions are feasible
+    println("Initial: $(isfeasible(sₒ))")
+    println("Optimal: $(isfeasible(s⃰))")
 # Visualizations
     # Visualize initial solution
     display(visualize(sₒ)) 
