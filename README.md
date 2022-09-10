@@ -11,7 +11,7 @@ fleet of vehicles `d.V` with capacity `v.q`, range `v.l`, speed `v.s`, refueling
 for every depot `d ∈ D`;
 set of customer nodes `C` with demand `c.q`, delivery time-window `[c.tᵉ,c.tˡ]` for every customer `c ∈ C`;
 set of arcs `A` with length `l` for every arc `(i,j) ∈ A`; and 
-the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for vehicle capacities.  
+the objective is to develop least cost routes from depot nodes using select vehicles such that every customer node is visited exactly once while also accounting for depot capacity, vehicle capacity, vehicle range, driver working-hours, and customers' time-windows.  
 
 This package uses Adaptive Large Neighborhood Search (ALNS) algorithm to find an optimal solution for the Locatio Routing Problem given ALNS optimization 
 parameters,
