@@ -61,8 +61,16 @@ let
     s⃰ = S[end]; 
 # Fetch objective function values
     println("Objective function value:")
+    println("   Initial: $(f(sₒ; penalty=false))")
+    println("   Optimal: $(f(s⃰ ; penalty=false))")
+# Fetch fixed costs
+    println("Fixed costs:")
+    println("   Initial: $(f(sₒ; operational=false, penalty=false))")
+    println("   Optimal: $(f(s⃰ ; operational=false, penalty=false))")
+# Fetch operational costs
+    println("Operational costs:")
     println("   Initial: $(f(sₒ; fixed=false, penalty=false))")
-    println("   Optimal: $(f(s⃰; fixed=false, penalty=false))")
+    println("   Optimal: $(f(s⃰ ; fixed=false, penalty=false))")
 # Check if the solutions are feasible
     println("Solution feasibility:")
     println("   Initial: $(isfeasible(sₒ))")
