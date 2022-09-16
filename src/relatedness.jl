@@ -3,7 +3,12 @@ function relatedness(c¹::CustomerNode, c²::CustomerNode, a::Arc)
     l = a.l
     t = abs(c¹.tᵉ - c².tᵉ) + abs(c¹.tˡ - c².tˡ)
     q = abs(c¹.q - c².q)
-    ϕ = !isequal(c¹, c²) & isequal(c¹.r, c².r)
+    r¹ = c¹.r
+    r² = c².r
+    ϕʳ = isequal(r¹, r²)
+    ϕᵛ = isequal(r¹.iᵛ, r².iᵛ)
+    ϕᵈ = isequal(r¹.iᵈ, r².iᵈ)
+    ϕ  = isequal(c¹, c²) ? 0 : (ϕʳ + ϕᵛ + ϕᵈ)
     z = 1/(l + t - q - ϕ)
     return z
 end
