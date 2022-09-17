@@ -26,6 +26,7 @@ remove!(q::Int64, s::Solution, method::Symbol) = remove!(Random.GLOBAL_RNG, q, s
 function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     # Step 1: Randomly select customer nodes to remove until q customer nodes have been removed
     n = 0
     w = isclose.(C)
@@ -40,36 +41,8 @@ function randomnode!(rng::AbstractRNG, q::Int64, s::Solution)
         n += 1
         w[iⁿ] = 0
     end
-    # Step 2: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 3: Return solution
+    postremoval(s)
+    # Step 2: Return solution
     return s
 end
 
@@ -79,6 +52,7 @@ function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
     A = s.A
+    preremoval(s)
     # Step 1: Randomly select a pivot customer node
     iᵒ = rand(rng, eachindex(C))
     # Step 2: For each customer node, evaluate relatedness to this pivot customer node
@@ -97,34 +71,7 @@ function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iⁿ] = -Inf
     end
     # Step 4: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
+    postremoval(s)
     # Step 5: Return solution
     return s
 end
@@ -134,6 +81,7 @@ end
 function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     V = [v for d ∈ D for v ∈ d.V]
     x = fill(-Inf, eachindex(C))    # x[i]: removal cost of customer node C[i]
     ϕ = ones(Int64, eachindex(V))   # ϕ[j]: selection weight for vehicle V[j]
@@ -174,36 +122,8 @@ function worstnode!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iⁿ] = -Inf
         for (j,v) ∈ pairs(V) ϕ[j] = isequal(r.iᵛ, v.iᵛ) ? 1 : 0 end 
     end
-    # Step 2: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 3: Return solution
+    postremoval(s)
+    # Step 2: Return solution
     return s
 end
 
@@ -213,6 +133,7 @@ end
 function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
     # Step 1: Iteratively select a random route and remove customer nodes from it until at least q customer nodes are removed
     n = 0
@@ -232,36 +153,8 @@ function randomroute!(rng::AbstractRNG, q::Int64, s::Solution)
         end
         w[iʳ] = 0
     end
-    # Step 2: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 3: Return solution
+    postremoval(s)
+    # Step 2: Return solution
     return s
 end
 
@@ -270,6 +163,7 @@ end
 function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
     # Step 1: Randomly select a pivot route
     iᵒ = sample(rng, eachindex(R), Weights(isopt.(R)))  
@@ -295,36 +189,8 @@ function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iʳ] = -Inf
         w[iʳ] = 0
     end
-    # Step 4: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 5: Return solution
+    postremoval(s)
+    # Step 4: Return solution
     return s
 end
 
@@ -333,6 +199,7 @@ end
 function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
     # Step 1: Evaluate utilization of each route
     x = fill(Inf, eachindex(R))
@@ -361,36 +228,8 @@ function worstroute!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iʳ] = Inf
         w[iʳ] = 0
     end
-    # Step 3: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 4: Return solution
+    postremoval(s)
+    # Step 3: Return solution
     return s
 end
     
@@ -400,6 +239,7 @@ end
 function randomvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     V = [v for d ∈ D for v ∈ d.V]
     # Step 1: Iteratively select a random vehicle and remove customer nodes from it until at least q customer nodes are removed
     n = 0
@@ -422,36 +262,8 @@ function randomvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
         end
         w[iᵛ] = 0
     end
-    # Step 2: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 3: Return solution
+    postremoval(s)
+    # Step 2: Return solution
     return s
 end
 
@@ -460,6 +272,7 @@ end
 function relatedvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     V = [v for d ∈ D for v ∈ d.V]
     # Step 1: Select a random closed depot node
     iᵒ = sample(rng, eachindex(V), Weights(isopt.(V)))
@@ -488,36 +301,8 @@ function relatedvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iᵛ] = -Inf
         w[iᵛ] = 0
     end
-    # Step 4: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 5: Return solution
+    postremoval(s)
+    # Step 4: Return solution
     return s
 end
 
@@ -526,6 +311,7 @@ end
 function worstvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
+    preremoval(s)
     V = [v for d ∈ D for v ∈ d.V]
     # Step 1: Evaluate utilization for each vehicle
     x = fill(Inf, eachindex(V))
@@ -560,35 +346,7 @@ function worstvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
         x[iᵛ] = Inf
         w[iᵛ] = 0
     end
-    # Step 3: Remove redundant vehicles and routes
-    for d ∈ D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
-    # Step 4: Return solution
+    postremoval(s)
+    # Step 3: Return solution
     return s
 end
