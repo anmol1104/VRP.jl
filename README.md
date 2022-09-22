@@ -4,7 +4,7 @@
 
 # Vehicle Routing Problem (VRP)
 
-multi-depot vehicle routing problem with heterogeneous fleet of multi-route delivery vehicles
+multi-depot capacitated vehicle routing problem with time-windows with heterogeneous fleet of multi-route delivery vehicles
 
 Given, a graph `G = (D, C, A)` with 
 set of depots `D` with capacity `d.q`, and 
