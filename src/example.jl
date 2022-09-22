@@ -5,7 +5,7 @@ using Random
 let
 # Developing an optimal solution 
     # Define instance
-    instance = "rc201";
+    instance = "r101";
     # Visualize instance
     display(visualize(instance))
     # Define a random number generator
@@ -86,8 +86,8 @@ let
     # Visualize best solution
     display(visualize(s⃰))
     # Animate ALNS solution search process from inital to best solution
-    #display(animate(S))
+    display(animate(S))
     # Show convergence plot
-    #display(plotconv(S))
+    display(plotconv(S))
     return
 end
