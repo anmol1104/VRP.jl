@@ -5,7 +5,7 @@ using Random
 let
 # Developing an optimal solution 
     # Define instance
-    instance = "r101";
+    instance = "rc201";
     # Visualize instance
     display(visualize(instance))
     # Define a random number generator
@@ -75,14 +75,19 @@ let
     println("Solution feasibility:")
     println("   Initial: $(isfeasible(sₒ))")
     println("   Optimal: $(isfeasible(s⃰))")
+# Optimal solution characteristics
+    println("Optimal solution characteristics:")
+    println("   Number of depots: $(sum([VRP.isopt(d) for d ∈ s⃰.D]))")
+    println("   Number of vehicles: $(sum([VRP.isopt(v) for d ∈ s⃰.D for v ∈ d.V]))")
+    println("   Number of routes: $(sum([VRP.isopt(r) for d ∈ s⃰.D for v ∈ d.V for r ∈ v.R]))")
 # Visualizations
     # Visualize initial solution
     display(visualize(sₒ)) 
     # Visualize best solution
     display(visualize(s⃰))
     # Animate ALNS solution search process from inital to best solution
-    display(animate(S))
+    #display(animate(S))
     # Show convergence plot
-    display(plotconv(S))
+    #display(plotconv(S))
     return
 end
