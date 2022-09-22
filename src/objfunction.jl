@@ -9,6 +9,7 @@ function f(s::Solution; fixed=true, operational=true, penalty=true)
     πᶠ, πᵒ, πᵖ = 0., 0., 0.
     ϕᶠ, ϕᵒ, ϕᵖ = fixed, operational, penalty
     for d ∈ s.D
+        if !isopt(d) continue end 
         qᵈ = 0
         for v ∈ d.V
             if !isopt(v) continue end 

@@ -86,6 +86,7 @@ function addroute(rᵒ::Route, s::Solution)
     dᵒ =  s.D[rᵒ.iᵈ]
     vᵒ = dᵒ.V[rᵒ.iᵛ]
     # condtions when route mustn't be added
+    if isequal(length(vᵒ.R), vᵒ.r̅) return false end
     if any(!isopt, vᵒ.R) return false end
     if vᵒ.tᵉ > vᵒ.w return false end
     qᵈ = 0
@@ -120,7 +121,7 @@ function addvehicle(vᵒ::Vehicle, s::Solution)
     for v ∈ dᵒ.V for r ∈ v.R qᵈ += r.q end end
     if qᵈ ≥ dᵒ.q return false end
     # condition when vehicle could be added
-    if dᵒ.q - qᵈ > vᵒ.q return true end
+    if qᵈ < dᵒ.q return true end
     for v ∈ dᵒ.V
         if v.tᵉ > v.w return true end
         for r ∈ v.R
@@ -138,12 +139,16 @@ function addvehicle(vᵒ::Vehicle, s::Solution)
     return false
 end
 
-# Return false if vehicle vᵒ can be deleted
+# Return false if vehicle vᵒ can be deleted (deletes liberally)
 function deletevehicle(vᵒ::Vehicle, s::Solution)
     dᵒ = s.D[vᵒ.iᵈ]
     # condtions when vehicle mustn't be deleted
     if isopt(vᵒ) return false end
+    qᵈ = 0
+    for v ∈ dᵒ.V for r ∈ v.R qᵈ += r.q end end
+    if qᵈ < dᵒ.q return false end 
     # condition when vehicle could be deleted
+    if qᵈ ≥ dᵒ.q return true end
     for v ∈ dᵒ.V
         if isequal(vᵒ, v) continue end
         if isidentical(vᵒ, v) return true end 
@@ -152,7 +157,7 @@ function deletevehicle(vᵒ::Vehicle, s::Solution)
 end
 
 # Pre intialization procedures
-function preinitialize(s::Solution)
+function preinitialize!(s::Solution)
     for d ∈ s.D
         for v ∈ d.V
             rᵒ = Route(v, d)
@@ -161,10 +166,11 @@ function preinitialize(s::Solution)
             if addvehicle(vᵒ, s) push!(d.V, vᵒ) end
         end
     end
+    return s
 end
 
 # Post intialization procedures
-function postinitialize(s::Solution)
+function postinitialize!(s::Solution)
     for d ∈ s.D
         k = 1
         while true
@@ -193,10 +199,11 @@ function postinitialize(s::Solution)
             end
         end
     end
+    return s
 end
 
 # Pre insertion procedures
-function preinsertion(s::Solution)
+function preinsertion!(s::Solution)
     for d ∈ s.D
         for v ∈ d.V
             rᵒ = Route(v, d)
@@ -205,10 +212,11 @@ function preinsertion(s::Solution)
             if addvehicle(vᵒ, s) push!(d.V, vᵒ) end
         end
     end
+    return s
 end
 
 # Post insertion procedures
-function postinsertion(s::Solution)
+function postinsertion!(s::Solution)
     for d ∈ s.D
         k = 1
         while true
@@ -237,15 +245,16 @@ function postinsertion(s::Solution)
             end
         end
     end
+    return s
 end
 
 # Pre removal procedures
-function preremoval(s::Solution)
-    return
+function preremoval!(s::Solution)
+    return s
 end
 
 # Post removal procedures
-function postremoval(s::Solution)
+function postremoval!(s::Solution)
     for d ∈ s.D
         k = 1
         while true
@@ -274,4 +283,5 @@ function postremoval(s::Solution)
             end
         end
     end
+    return s
 end

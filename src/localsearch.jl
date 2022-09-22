@@ -43,7 +43,7 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
         # Step 2.3: Iterate through all routes
         for (j,r) ∈ pairs(R)
             # Step 2.3.1: Iterate through all possible insertion positions
-            d = s.D[r.iᵈ]
+            d  = s.D[r.iᵈ]
             nˢ = isopt(r) ? C[r.iˢ] : D[r.iˢ] 
             nᵉ = isopt(r) ? C[r.iᵉ] : D[r.iᵉ]
             nᵗ = d
@@ -132,7 +132,7 @@ function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
         end
         # Step 1.3: Compute change in objective function value
         z′ = f(s)
-        Δ  = z′ - zᵒ
+        Δ  = z′ - zᵒ 
         # Step 1.4: If the reconfiguration results in reduction in objective function value then go to step 2, else go to step 1.5
         if Δ < 0 return s end
         # Step 1.5: Reconfigure back to the original state
@@ -221,7 +221,7 @@ function interopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
         end
         # Step 1.3: Compute change in objective function value
         z′ = f(s)
-        Δ  = z′ - zᵒ
+        Δ  = z′ - zᵒ 
         # Step 1.4: If the reconfiguration results in reduction in objective function value then go to step 2, else go to step 1.5
         if Δ < 0 break end
         # Step 1.5: Reconfigure back to the original state
