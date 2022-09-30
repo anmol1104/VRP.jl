@@ -146,16 +146,11 @@ function deletevehicle(vᵒ::Vehicle, s::Solution)
     dᵒ = s.D[vᵒ.iᵈ]
     # condtions when vehicle mustn't be deleted
     if isopt(vᵒ) return false end
-    qᵈ = 0
-    for v ∈ dᵒ.V for r ∈ v.R qᵈ += r.q end end
-    if qᵈ < dᵒ.q return false end 
+    nʲ = 0
+    for v ∈ dᵒ.V if isidentical(vᵒ, v) nʲ += 1 end end
+    if isone(nʲ) return false end
     # condition when vehicle could be deleted
-    if qᵈ ≥ dᵒ.q return true end
-    for v ∈ dᵒ.V
-        if isequal(vᵒ, v) continue end
-        if isidentical(vᵒ, v) return true end 
-    end
-    return false
+    return true
 end
 
 # Pre intialization procedures
@@ -164,8 +159,6 @@ function preinitialize!(s::Solution)
         for v ∈ d.V
             rᵒ = Route(v, d)
             if addroute(rᵒ, s) push!(v.R, rᵒ) end
-            vᵒ = Vehicle(v, d)
-            if addvehicle(vᵒ, s) push!(d.V, vᵒ) end
         end
     end
     return s
@@ -173,34 +166,6 @@ end
 
 # Post intialization procedures
 function postinitialize!(s::Solution)
-    for d ∈ s.D
-        k = 1
-        while true
-            v = d.V[k]
-            if deletevehicle(v, s) 
-                deleteat!(d.V, k)
-            else
-                v.iᵛ = k
-                for r ∈ v.R r.iᵛ = k end
-                k += 1
-            end
-            if k > length(d.V) break end
-        end
-        for v ∈ d.V
-            if isempty(v.R) continue end
-            k = 1
-            while true
-                r = v.R[k]
-                if deleteroute(r, s) 
-                    deleteat!(v.R, k)
-                else
-                    r.iʳ = k
-                    k += 1
-                end
-                if k > length(v.R) break end
-            end
-        end
-    end
     return s
 end
 
