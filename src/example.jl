@@ -14,7 +14,7 @@ let
     sₒ = initialsolution(rng, instance, :random);
     # Define ALNS parameters
     x = length(sₒ.D)+length(sₒ.C);
-    n = max(200, ceil(x, digits=-(length(digits(x))-1)));
+    n = max(100, ceil(x, digits=-(length(digits(x))-1)));
     χ = ALNSParameters(
         k̲   =   n ÷ 25                  ,
         l̲   =   2n                      ,
@@ -44,13 +44,13 @@ let
                     :split!         ,
                     :swap!
                 ]                       ,
-        σ₁  =   33                      ,
-        σ₂  =   9                       ,
-        σ₃  =   13                      ,
+        σ₁  =   15                      ,
+        σ₂  =   10                      ,
+        σ₃  =   3                       ,
         ω   =   0.05                    ,
         τ   =   0.5                     ,
         𝜃   =   0.99975                 ,
-        C̲   =   30                      ,
+        C̲   =   4                       ,
         C̅   =   60                      ,
         μ̲   =   0.1                     ,
         μ̅   =   0.4                     ,
@@ -60,7 +60,7 @@ let
     S = ALNS(rng, χ, sₒ);
     s⃰ = S[end]; 
 # Fetch objective function values
-    println("Objective function value:")
+    println("\nObjective function value:")
     println("   Initial: $(f(sₒ; penalty=false))")
     println("   Optimal: $(f(s⃰ ; penalty=false))")
 # Fetch fixed costs
