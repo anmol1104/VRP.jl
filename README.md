@@ -36,7 +36,8 @@ parameters,
 - `ρ`     :   Reaction factor
 
 and an initial solution developed using one of the following methods,
-- Random Initialization                 : `:random`
+- Random Initialization             : `:random`
+- K-means Clustering Intialization  : `:cluster`
 
 The ALNS metaheuristic iteratively removes a set of nodes using,
 - Random Node Removal       : `:randomnode!`
