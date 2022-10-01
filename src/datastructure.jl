@@ -1,5 +1,5 @@
 @doc """
-    Arc(iₜ::Int64, iₕ::Int64, l::Float64)
+    Arc(iᵗ::Int64, iʰ::Int64, l::Float64)
 
 An `Arc` is a connection between tail   
 node with index `iᵗ` and head node with 
@@ -68,7 +68,7 @@ A `Node` is a point on the graph.
 abstract type Node end
 
 @doc """
-    DepotNode(i::Int64, x::Float64, y::Float64, q::Float64, V::Vector{Vehicle})
+    DepotNode(iⁿ::Int64, x::Float64, y::Float64, q::Float64, V::Vector{Vehicle})
 
 A `DepotNode` is a source point on the graph at `(x,y)` with index `iⁿ`, capacity 
 `q`, and fleet of vehicles `V`.
