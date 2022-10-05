@@ -71,10 +71,8 @@ function build(instance)
         d  = D[iᵈ]
         push!(d.V, v)
     end
-    file = joinpath(dirname(@__DIR__), "instances/$instance/time_windows.csv")
-    csv = CSV.File(file, types=[Int64])
-    df = DataFrame(csv)
-    ϕ = df[1,1]::Int64
+    V  = [v for d ∈ D for v ∈ d.V]
+    ϕ = Int64(!(iszero(getproperty.(C, :tᵉ)) && iszero(getproperty.(C, :tˡ)) && iszero(getproperty.(V, :w))))::Int64
     G = (D, C, A, ϕ)
     return G
 end
