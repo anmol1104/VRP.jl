@@ -14,7 +14,7 @@ let
     sₒ = initialsolution(rng, instance, :random);
     # Define ALNS parameters
     x = length(sₒ.D)+length(sₒ.C);
-    n = max(100, ceil(x, digits=-(length(digits(x))-1)));
+    n = max(500, ceil(x, digits=-(length(digits(x))-1)));
     χ = ALNSParameters(
         k̲   =   n ÷ 25                  ,
         l̲   =   2n                      ,

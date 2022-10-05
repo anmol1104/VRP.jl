@@ -5,11 +5,11 @@ function relatedness(c¹::CustomerNode, c²::CustomerNode, a::Arc)
     q = abs(c¹.q - c².q)
     r¹ = c¹.r
     r² = c².r
-    ϕʳ = isequal(r¹, r²)
-    ϕᵛ = isequal(r¹.iᵛ, r².iᵛ)
-    ϕᵈ = isequal(r¹.iᵈ, r².iᵈ)
-    ϕ  = isequal(c¹, c²) ? 0 : (ϕʳ + ϕᵛ + ϕᵈ)
-    z = 1/(l + t - q - ϕ)
+    φʳ = isequal(r¹, r²)
+    φᵛ = isequal(r¹.iᵛ, r².iᵛ)
+    φᵈ = isequal(r¹.iᵈ, r².iᵈ)
+    φ  = isequal(c¹, c²) ? 0 : (φʳ + φᵛ + φᵈ)
+    z = 1/(l + t - q - φ)
     return z
 end
 function relatedness(r¹::Route, r²::Route)
@@ -18,8 +18,8 @@ function relatedness(r¹::Route, r²::Route)
     l = abs(r¹.l - r².l)
     t = abs(r¹.tˢ - r².tˢ) + abs(r¹.tᵉ - r².tᵉ)
     q = abs(r¹.q - r².q)
-    ϕ = isequal(r¹.iᵛ, r².iᵛ)
-    z = 1/(l + t - q - ϕ)
+    φ = isequal(r¹.iᵛ, r².iᵛ)
+    z = 1/(l + t - q - φ)
     return z
 end
 function relatedness(v¹::Vehicle, v²::Vehicle)
@@ -44,7 +44,7 @@ function relatedness(v¹::Vehicle, v²::Vehicle)
     l = abs(l¹ - l²)
     t = abs(t¹ - t²)
     q = abs(q¹ - q²)
-    ϕ = isequal(v¹.iᵈ, v².iᵈ)
-    z = 1/(l + t - q - ϕ)
+    φ = isequal(v¹.iᵈ, v².iᵈ)
+    z = 1/(l + t - q - φ)
     return z
 end

@@ -72,7 +72,7 @@ function build(instance)
         push!(d.V, v)
     end
     V  = [v for d ∈ D for v ∈ d.V]
-    ϕ = Int64(!(iszero(getproperty.(C, :tᵉ)) && iszero(getproperty.(C, :tˡ)) && iszero(getproperty.(V, :w))))::Int64
-    G = (D, C, A, ϕ)
+    φᵀ = Int64(!(iszero(getproperty.(C, :tᵉ)) && iszero(getproperty.(C, :tˡ)) && iszero(getproperty.(V, :w))))::Int64
+    G  = (D, C, A, φᵀ)
     return G
 end

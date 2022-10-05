@@ -11,7 +11,7 @@ are not violated.
 function isfeasible(s::Solution)
     D = s.D
     C = s.C
-    x = zeros(Int64, eachindex(C))
+    X = zeros(Int64, eachindex(C))
     for d ∈ D
         qᵈ = 0
         for v ∈ d.V
@@ -30,7 +30,7 @@ function isfeasible(s::Solution)
                 cᵒ = cˢ
                 while true
                     if cᵒ.tᵃ > cᵒ.tˡ return false end   # Time-window constraint
-                    x[cᵒ.iⁿ] += 1
+                    X[cᵒ.iⁿ] += 1
                     if isequal(cᵒ, cᵉ) break end
                     cᵒ = C[cᵒ.iʰ]
                 end
@@ -40,6 +40,6 @@ function isfeasible(s::Solution)
         end
         if qᵈ > d.q return false end                    # Depot capacity constraint
     end
-    if any(!isone, x) return false end                  # Node service, customer flow, and sub-tour elimination constrinat
+    if any(!isone, X) return false end                  # Node service, customer flow, and sub-tour elimination constrinat
     return true
 end

@@ -7,7 +7,7 @@ Objective function evaluation for solution `s`. Include `fixed`,
 """
 function f(s::Solution; fixed=true, operational=true, penalty=true)
     πᶠ, πᵒ, πᵖ = 0., 0., 0.
-    ϕᶠ, ϕᵒ, ϕᵖ = fixed, operational, penalty
+    φᶠ, φᵒ, φᵖ = fixed, operational, penalty
     for d ∈ s.D
         if !isopt(d) continue end 
         qᵈ = 0
@@ -31,6 +31,6 @@ function f(s::Solution; fixed=true, operational=true, penalty=true)
         πᵖ += (qᵈ > d.q) * (qᵈ - d.q)                                       # Depot capacity constraint
     end
     for c ∈ s.C πᵖ += isopen(c) ? 0. : (c.tᵃ > c.tˡ) * (c.tᵃ - c.tˡ) end    # Time-window constraint
-    z = ϕᶠ * πᶠ + ϕᵒ * πᵒ + ϕᵖ * πᵖ * 10^(ceil(log10(πᶠ + πᵒ)))
+    z = φᶠ * πᶠ + φᵒ * πᵒ + φᵖ * πᵖ * 10^(ceil(log10(πᶠ + πᵒ)))
     return z
 end
