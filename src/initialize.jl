@@ -5,41 +5,15 @@
 Returns initial LRP solution for the given `instance` using the given `method`.
 
 Available methods include,
-- Random Initialization             : `:random`
-- K-means Clustering Initialization : `:cluster`
+- K-means Clustering Initialization     : `:cluster`
+- Clarke and Wright Savings Algorithm   : `:cw`
+- Random Initialization                 : `:random`
 
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
 """
 initialsolution(rng::AbstractRNG, instance, method::Symbol)::Solution = getfield(VRP, method)(rng, instance)
 initialsolution(instance, method::Symbol) = initialsolution(Random.GLOBAL_RNG, instance, method)
-
-# Random Initialization
-# Create initial solution with randomly selcted node-route combination until all customer nodes have been added to the solution
-function random(rng::AbstractRNG, instance)
-    G = build(instance)
-    s = Solution(G...)
-    D = s.D
-    C = s.C
-    # Step 1: Initialize
-    preinitialize!(s)
-    d = sample(rng, D)
-    v = sample(rng, d.V)
-    r = sample(rng, v.R)
-    w = ones(Int64, eachindex(C))                      # w[i]: selection weight for customer node C[i]
-    # Step 2: Iteratively append randomly selected customer node in randomly selected route
-    while any(isopen, C)
-        c = sample(rng, C, OffsetWeights(w))
-        nᵗ = d
-        nʰ = isopt(r) ? C[r.iˢ] : D[r.iˢ]
-        insertnode!(c, nᵗ, nʰ, r, s)
-        iⁿ = c.iⁿ
-        w[iⁿ] = 0
-    end
-    postinitialize!(s)
-    # Step 4: Return initial solution
-    return s
-end
 
 # k-means clustering Initialization
 # Create initial solution using k-means clustering algorithm
@@ -147,6 +121,152 @@ function cluster(rng::AbstractRNG, instance)
                 push!(ϕ, 1)
             end
         end
+    end
+    postinitialize!(s)
+    # Step 4: Return initial solution
+    return s
+end
+
+# Clarke and Wright Savings Algorithm
+# Create initial solution merging routes that render the most savings until no merger can render further savings
+function cw(rng::AbstractRNG, instance)
+    G = build(instance)
+    s = Solution(G...)
+    D = s.D
+    C = s.C
+    V = [v for d ∈ D for v ∈ d.V]
+    # Step 1: Initialize by assigning customer node to the vehicle-depot pair that results in least assignment cost
+    R = Route[]
+    I = eachindex(V)
+    J = eachindex(C)
+    X = fill(Inf, (I,J))                # X[i,j]: Cost of assigning customer node C[j] to vehicle V[i]
+    # Step 2: Iterate through each customer node
+    for (j,c) ∈ pairs(C)
+        # Step 2.1: For customer node c, iterate through every vehicle-depot pair evaluating assignment cost
+        zᵒ = f(s)
+        for (i,v) ∈ pairs(V)
+            # Step 2.1.1: Assign customer node c to vehicle v of depot node d
+            d = D[v.iᵈ] 
+            r = Route(v, d)
+            push!(v.R, r)
+            insertnode!(c, d, d, r, s)
+            # Step 2.1.2: Compute assignment cost
+            z⁺ = f(s)
+            Δ  = z⁺ - zᵒ
+            X[i,j] = Δ
+            # Step 2.1.3: Unassign customer node c from vehicle v of depot node d
+            removenode!(c, d, d, r, s)
+            pop!(v.R)
+        end
+        # Step 2.2: Assign customer node c to vehicle v of depot node v that results in least assignment cost
+        i = argmin(X[:,j])
+        v = V[i]
+        d = D[v.iᵈ]
+        r = Route(v, d)
+        push!(v.R, r)
+        push!(R, r)
+        insertnode!(c, d, d, r, s)
+        # Step 2.3: Revise vectors appropriately
+        X[:,j] .= Inf
+    end
+    # Step 3: Merge routes iteratively until no merger can render further savings
+    K = eachindex(R)
+    Y = fill(-Inf, (K,K))               # Y[i,j]: Savings from merging route R[i] into R[j] 
+    ϕ = ones(Int64, K)                  # ϕ[k]  : selection weight for route R[k]  
+    while true
+        # Step 3.1: Iterate through every route-pair combination
+        zᵒ = f(s)
+        for (i,r¹) ∈ pairs(R)
+            if !isopt(r¹) continue end
+            for (j,r²) ∈ pairs(R)
+                # Step 3.1.1: Merge route r¹ into route r²
+                if !isopt(r²) continue end
+                if isequal(r¹, r²) continue end
+                if iszero(ϕ[i]) & iszero(ϕ[j]) continue end
+                v¹, v² = V[r¹.iᵛ], V[r².iᵛ]
+                d¹, d² = D[v¹.iᵈ], D[v².iᵈ]
+                cˢ, cᵉ = C[r¹.iˢ], C[r¹.iᵉ]
+                while true
+                    c  = C[r¹.iˢ]
+                    nᵗ = d¹
+                    nʰ = isequal(r¹.iᵉ, c.iⁿ) ? D[c.iʰ] : C[c.iʰ]
+                    removenode!(c, nᵗ, nʰ, r¹, s)
+                    nᵗ = C[r².iᵉ]
+                    nʰ = d²
+                    insertnode!(c, nᵗ, nʰ, r², s)
+                    if isequal(c, cᵉ) break end
+                end
+                # Step 3.1.2: Compute savings from merging route r¹ into route r²
+                z⁻ = f(s)
+                Δ  = z⁻ - zᵒ
+                Y[i,j] = -Δ
+                # Step 3.1.3: Unmerge routes r¹ and r²
+                while true
+                    c  = C[r².iᵉ] 
+                    nᵗ = C[c.iᵗ]
+                    nʰ = d²
+                    removenode!(c, nᵗ, nʰ, r², s)
+                    nᵗ = d¹
+                    nʰ = isopt(r¹) ? C[r¹.iˢ] : D[r¹.iˢ]
+                    insertnode!(c, nᵗ, nʰ, r¹, s)
+                    if isequal(c, cˢ) break end
+                end
+            end
+        end
+        # Step 3.2: Merge routes that render highest savings. If no route render savings, go to step 4. 
+        if maximum(Y) < 0 break end
+        i,j = Tuple(argmax(Y))
+        r¹, r² = R[i], R[j]
+        v¹, v² = V[r¹.iᵛ], V[r².iᵛ]
+        d¹, d² = D[v¹.iᵈ], D[v².iᵈ]
+        cˢ, cᵉ = C[r¹.iˢ], C[r¹.iᵉ]
+        while true
+            c  = C[r¹.iˢ]
+            nᵗ = d¹
+            nʰ = isequal(r¹.iᵉ, c.iⁿ) ? D[c.iʰ] : C[c.iʰ]
+            removenode!(c, nᵗ, nʰ, r¹, s)
+            nᵗ = C[r².iᵉ]
+            nʰ = d²
+            insertnode!(c, nᵗ, nʰ, r², s)
+            if isequal(c, cᵉ) break end
+        end
+        # Step 3.3: Revise savings and selection vectors appropriately
+        Y[i,:] .= -Inf
+        Y[:,i] .= -Inf
+        ϕ .= 0
+        for (j,r) ∈ pairs(R)
+            if !isequal(r.iᵛ, v².iᵛ) continue end
+            Y[j,:] .= -Inf 
+            Y[:,j] .= -Inf
+            ϕ[j] = 1
+        end
+    end
+    postinitialize!(s)
+    # Step 5: Return initial solution
+    return s
+end
+
+# Random Initialization
+# Create initial solution with randomly selcted node-route combination until all customer nodes have been added to the solution
+function random(rng::AbstractRNG, instance)
+    G = build(instance)
+    s = Solution(G...)
+    D = s.D
+    C = s.C
+    # Step 1: Initialize
+    preinitialize!(s)
+    d = sample(rng, D)
+    v = sample(rng, d.V)
+    r = sample(rng, v.R)
+    W = ones(Int64, eachindex(C))                      # W[i]: selection weight for customer node C[i]
+    # Step 2: Iteratively append randomly selected customer node in randomly selected route
+    while any(isopen, C)
+        c  = sample(rng, C, OffsetWeights(W))
+        nᵗ = d
+        nʰ = isopt(r) ? C[r.iˢ] : D[r.iˢ]
+        insertnode!(c, nᵗ, nʰ, r, s)
+        iⁿ = c.iⁿ
+        W[iⁿ] = 0
     end
     postinitialize!(s)
     # Step 4: Return initial solution
