@@ -23,8 +23,10 @@ let
                         :worstvehicle!  
                     ]                        , 
             Ψᵢ  =   [
-                        :best!          ,
-                        :greedy!        ,
+                        :bestprecise!   ,
+                        :bestperturb!   ,
+                        :greedyprecise! ,
+                        :greedyperturb! ,
                         :regret2!       ,
                         :regret3!
                     ]                       ,
@@ -77,8 +79,10 @@ let
                         :worstvehicle!  
                     ]                        , 
             Ψᵢ  =   [
-                        :best!          ,
-                        :greedy!        ,
+                        :bestprecise!   ,
+                        :bestperturb!   ,
+                        :greedyprecise! ,
+                        :greedyperturb! ,
                         :regret2!       ,
                         :regret3!
                     ]                       ,
