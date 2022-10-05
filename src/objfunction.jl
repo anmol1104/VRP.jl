@@ -12,8 +12,7 @@ function f(s::Solution; fixed=true, operational=true, penalty=true)
         if !isopt(d) continue end 
         qᵈ = 0
         for v ∈ d.V
-            if !isopt(v) continue end 
-            πᶠ += v.πᶠ
+            πᶠ += isopt(v) * v.πᶠ
             tˢ = 0.
             tᵉ = 0.
             for r ∈ v.R 
@@ -23,15 +22,15 @@ function f(s::Solution; fixed=true, operational=true, penalty=true)
                 tᵉ = r.tᵉ
                 qᵈ += qᵛ
                 πᵒ += r.l * v.πᵒ
-                πᵖ += (qᵛ > v.q) * (qᵛ - v.q)
-                πᵖ += (lᵛ > v.l) * (lᵛ - v.l)
+                πᵖ += (qᵛ > v.q) * (qᵛ - v.q)                               # Vehicle capacity constraint
+                πᵖ += (lᵛ > v.l) * (lᵛ - v.l)                               # Vehicle range constraint
             end
             tᵛ = tᵉ - tˢ
-            πᵖ += (tᵛ > v.w) * (tᵛ - v.w)
+            πᵖ += (tᵛ > v.w) * (tᵛ - v.w)                                   # Working-hours constraint 
         end
-        πᵖ += (qᵈ > d.q) * (qᵈ - d.q)
+        πᵖ += (qᵈ > d.q) * (qᵈ - d.q)                                       # Depot capacity constraint
     end
-    for c ∈ s.C πᵖ += isopen(c) ? 0. : (c.tᵃ > c.tˡ) * (c.tᵃ - c.tˡ) end
+    for c ∈ s.C πᵖ += isopen(c) ? 0. : (c.tᵃ > c.tˡ) * (c.tᵃ - c.tˡ) end    # Time-window constraint
     z = ϕᶠ * πᶠ + ϕᵒ * πᵒ + ϕᵖ * πᵖ * 10^(ceil(log10(πᶠ + πᵒ)))
     return z
 end

@@ -27,13 +27,13 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
     I = eachindex(C)
     J = eachindex(R)
-    w = ones(Int64, I)              # w[i]: selection weight for node C[i]
-    x = fill(Inf, J)                # x[j]: insertion cost in route R[j]
-    p = fill((0, 0), J)             # p[j]: best insertion postion in route R[j]
+    X = fill(Inf, J)                # x[j]: insertion cost in route R[j]
+    P = fill((0, 0), J)             # p[j]: best insertion postion in route R[j]
+    W = ones(Int64, I)              # w[i]: selection weight for node C[i]
     # Step 2: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
         # Step 2.1: Randomly select a node
-        i = sample(rng, I, OffsetWeights(w))
+        i = sample(rng, I, OffsetWeights(W))
         c = C[i]
         # Step 2.2: Remove this node from its position between tail node nᵗ and head node nʰ
         r  = c.r
@@ -55,7 +55,7 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
                 z′ = f(s)
                 Δ  = z′ - zᵒ
                 # Step 2.3.1.3: Revise least insertion cost in route r and the corresponding best insertion position in route r
-                if Δ < x[j] x[j], p[j] = Δ, (nᵗ.iⁿ, nʰ.iⁿ) end
+                if Δ < X[j] X[j], P[j] = Δ, (nᵗ.iⁿ, nʰ.iⁿ) end
                 # Step 2.3.4: Remove node from its position between tail node nᵗ and head node nʰ
                 removenode!(c, nᵗ, nʰ, r, s)
                 if isequal(nᵗ, nᵉ) break end
@@ -64,18 +64,18 @@ function move!(rng::AbstractRNG, k̅::Int64, s::Solution)
             end
         end
         # Step 2.4: Move the node to its best position (this could be its original position as well)
-        j = argmin(x)
-        Δ = x[j]
+        j = argmin(X)
+        Δ = X[j]
         r = R[j]
-        iᵗ = p[j][1]
-        iʰ = p[j][2]
+        iᵗ = P[j][1]
+        iʰ = P[j][2]
         nᵗ = iᵗ ≤ length(D) ? D[iᵗ] : C[iᵗ]
         nʰ = iʰ ≤ length(D) ? D[iʰ] : C[iʰ]
         insertnode!(c, nᵗ, nʰ, r, s)
         # Step 2.5: Revise vectors appropriately
-        w[i] = 0
-        x .= Inf
-        p .= ((0, 0), )
+        X .= Inf
+        P .= ((0, 0), )
+        W[i] = 0
         # Step 2.6: If the move results in reduction in objective function value, then go to step 3, else return to step 2.1
         Δ ≥ 0 ? continue : break
     end
@@ -91,12 +91,12 @@ function intraopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
     D = s.D
     C = s.C
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
-    w = isopt.(R)
+    W = isopt.(R)
     # Step 1: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
         # Step 1.1: Iteratively take 2 arcs from the same route
         # d → ... → n¹ → n² → n³ → ... → n⁴ → n⁵ → n⁶ → ... → d
-        r = sample(rng, R, Weights(w))
+        r = sample(rng, R, Weights(W))
         (i,j) = sample(rng, 1:r.n, 2)
         (i,j) = j < i ? (j,i) : (i,j)  
         k  = 1
@@ -159,12 +159,12 @@ function interopt!(rng::AbstractRNG, k̅::Int64, s::Solution)
     D = s.D
     C = s.C
     R = [r for d ∈ D for v ∈ d.V for r ∈ v.R]
-    w = isopt.(R)
+    W = isopt.(R)
     # Step 1: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
         # Step 1.1: Iteratively take 2 arcs from different routes
         # d² → ... → n¹ → n² → n³ → ... → d² and d⁵ → ... → n⁴ → n⁵ → n⁶ → ... → d⁵
-        r², r⁵ = sample(rng, R, Weights(w), 2)
+        r², r⁵ = sample(rng, R, Weights(W), 2)
         d², d⁵ = D[r².iᵈ], D[r⁵.iᵈ]
         if isequal(r², r⁵) continue end
         i  = rand(rng, 1:r².n)
@@ -265,11 +265,11 @@ function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
     z′ = zᵒ
     D = s.D
     C = s.C
-    w = ones(Int64, eachindex(D))
+    W = ones(Int64, eachindex(D))
     # Step 1: Iterate for k̅ iterations until improvement
     for _ ∈ 1:k̅
         # Step 1.1: Select a random depot node d
-        i = sample(rng, eachindex(D), Weights(w))
+        i = sample(rng, eachindex(D), Weights(W))
         d = D[i]
         # Step 1.2: Iterate through every route originating from this depot node
         for v ∈ d.V
@@ -307,7 +307,7 @@ function split!(rng::AbstractRNG, k̅::Int64, s::Solution)
             end
         end
         # Step 1.3: Revise vectors appropriately
-        w[i] = 0
+        W[i] = 0
         Δ = z′ - zᵒ
         # Step 1.4: If the overall change results in reduction in objective function value, then go to step 2, else return to step 1.1
         Δ ≥ 0 ? continue : break
