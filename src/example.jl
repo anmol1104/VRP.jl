@@ -63,8 +63,8 @@ let
     s⃰ = S[end]; 
 # Fetch objective function values
     println("\nObjective function value:")
-    println("   Initial: $(f(sₒ; penalty=false))")
-    println("   Optimal: $(f(s⃰ ; penalty=false))")
+    println("   Initial: $(f(sₒ))")
+    println("   Optimal: $(f(s⃰ ))")
 # Fetch fixed costs
     println("Fixed costs:")
     println("   Initial: $(f(sₒ; operational=false, penalty=false))")
