@@ -154,7 +154,7 @@ function animate(S::Vector{Solution}; fps=10)
 end
 
 """
-    plotconv(S::Vector{Solution}; backend=gr)
+    pltcnv(S::Vector{Solution}; backend=gr)
 
 Plots objective function values for solutions in `S`.
 Uses given `backend` to plot (defaults to `gr`).
