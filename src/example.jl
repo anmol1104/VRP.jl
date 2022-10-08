@@ -51,7 +51,7 @@ let
         σ₃  =   3                       ,
         ω   =   0.05                    ,
         τ   =   0.5                     ,
-        𝜃   =   0.99975                 ,
+        𝜃   =   0.9975                  ,
         C̲   =   4                       ,
         C̅   =   60                      ,
         μ̲   =   0.1                     ,
@@ -63,8 +63,8 @@ let
     s⃰ = S[end]; 
 # Fetch objective function values
     println("\nObjective function value:")
-    println("   Initial: $(f(sₒ))")
-    println("   Optimal: $(f(s⃰ ))")
+    println("   Initial: $(f(sₒ; penalty=false))")
+    println("   Optimal: $(f(s⃰ ; penalty=false))")
 # Fetch fixed costs
     println("Fixed costs:")
     println("   Initial: $(f(sₒ; operational=false, penalty=false))")
