@@ -1,8 +1,8 @@
 # Initial solution
 """
-    initialsolution([rng], instance, method)
+    initialsolution([rng], G, method)
 
-Returns initial LRP solution for the given `instance` using the given `method`.
+    Returns initial VRP solution using the given `method` for graph `G` given as a tuple of `Nodes` and `Arcs`.
 
 Available methods include,
 - K-means Clustering Initialization     : `:cluster`
@@ -12,13 +12,12 @@ Available methods include,
 Optionally specify a random number generator `rng` as the first argument
 (defaults to `Random.GLOBAL_RNG`).
 """
-initialsolution(rng::AbstractRNG, instance, method::Symbol)::Solution = getfield(VRP, method)(rng, instance)
-initialsolution(instance, method::Symbol) = initialsolution(Random.GLOBAL_RNG, instance, method)
+initialsolution(rng::AbstractRNG, G, method::Symbol)::Solution = getfield(VRP, method)(rng, G)
+initialsolution(G, method::Symbol) = initialsolution(Random.GLOBAL_RNG, G, method)
 
 # k-means clustering Initialization
 # Create initial solution using k-means clustering algorithm
-function cluster(rng::AbstractRNG, instance)
-    G = build(instance)
+function cluster(rng::AbstractRNG, G)
     s = Solution(G...)
     D = s.D
     C = s.C
@@ -129,8 +128,7 @@ end
 
 # Clarke and Wright Savings Algorithm
 # Create initial solution merging routes that render the most savings until no merger can render further savings
-function cw(rng::AbstractRNG, instance)
-    G = build(instance)
+function cw(rng::AbstractRNG, G)
     s = Solution(G...)
     D = s.D
     C = s.C
@@ -248,8 +246,7 @@ end
 
 # Random Initialization
 # Create initial solution with randomly selcted node-route combination until all customer nodes have been added to the solution
-function random(rng::AbstractRNG, instance)
-    G = build(instance)
+function random(rng::AbstractRNG, G)
     s = Solution(G...)
     D = s.D
     C = s.C
