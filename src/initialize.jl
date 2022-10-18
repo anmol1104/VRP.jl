@@ -2,8 +2,7 @@
 """
     initialsolution([rng], G, method)
 
-    Returns initial VRP solution using the given `method` for graph `G` given as a tuple of `Nodes` and `Arcs`.
-
+Returns initial VRP solution using the given `method` for graph `G` given as a tuple of `Nodes` and `Arcs`.
 Available methods include,
 - K-means Clustering Initialization     : `:cluster`
 - Clarke and Wright Savings Algorithm   : `:cw`
