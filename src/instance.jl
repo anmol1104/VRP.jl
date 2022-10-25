@@ -2,17 +2,26 @@
 function build(instance; root=joinpath(dirname(@__DIR__), "instances"))
     # Depot nodes
     file = joinpath(root, "$instance/depot_nodes.csv")
-    csv = CSV.File(file, types=[Int64, Float64, Float64, Int64])
+    csv = CSV.File(file, types=[Int64, Int64, Float64, Float64, Int64, Float64, Float64, Float64, Float64, Float64, Float64])
     df = DataFrame(csv)
     D = Vector{DepotNode}(undef, nrow(df))
     for k ∈ 1:nrow(df)
         iⁿ = df[k,1]::Int64
-        x  = df[k,2]::Float64
-        y  = df[k,3]::Float64
-        q  = df[k,4]::Int64 
-        d  = DepotNode(iⁿ, x, y, q, Vehicle[])
+        jⁿ = df[k,2]::Int64
+        x  = df[k,3]::Float64
+        y  = df[k,4]::Float64
+        q  = df[k,5]::Int64
+        pˡ = df[k,6]::Float64
+        pᵘ = df[k,7]::Float64
+        tˢ = df[k,8]::Float64
+        tᵉ = df[k,9]::Float64
+        πᵒ = df[k,10]::Float64
+        πᶠ = df[k,11]::Float64
+        d  = DepotNode(iⁿ, jⁿ, x, y, q, pˡ, pᵘ, tˢ, tᵉ, πᵒ, πᶠ, Vehicle[])
         D[iⁿ] = d
     end
+    φᴱ = Int64(!isone(length(unique(getproperty.(D, :jⁿ)))))::Int64
+
     # Customer nodes
     file = joinpath(root, "$instance/customer_nodes.csv")
     csv = CSV.File(file, types=[Int64, Float64, Float64, Int64, Float64, Float64])
@@ -28,8 +37,8 @@ function build(instance; root=joinpath(dirname(@__DIR__), "instances"))
         tˡ = df[k,6]::Float64
         iᵗ = 0
         iʰ = 0
-        tᵃ = 0.
-        tᵈ = 0.
+        tᵃ = 0
+        tᵈ = 0
         c  = CustomerNode(iⁿ, x, y, q, tᵉ, tˡ, iᵗ, iʰ, tᵃ, tᵈ, NullRoute)
         C[iⁿ] = c
     end
@@ -51,7 +60,7 @@ function build(instance; root=joinpath(dirname(@__DIR__), "instances"))
     end
     # Vehicles
     file = joinpath(root, "$instance/vehicles.csv")
-    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Int64, Int64, Float64, Float64, Float64, Float64, Float64, Int64, Int64])
+    csv = CSV.File(file, types=[Int64, Int64, Int64, Int64, Int64, Int64, Float64, Float64, Float64, Int64, Int64, Float64, Float64])
     df = DataFrame(csv)
     for k ∈ 1:nrow(df)
         iᵛ = df[k,1]::Int64
@@ -63,16 +72,16 @@ function build(instance; root=joinpath(dirname(@__DIR__), "instances"))
         τᶠ = df[k,7]::Float64
         τᵈ = df[k,8]::Float64
         τᶜ = df[k,9]::Float64
-        πᵒ = df[k,10]::Float64
-        πᶠ = df[k,11]::Float64
-        r̅  = df[k,12]::Int64
-        w  = df[k,13]::Int64
-        v  = Vehicle(iᵛ, jᵛ, iᵈ, q, l, s, τᶠ, τᵈ, τᶜ, πᵒ, πᶠ, r̅, w, 0., 0., Route[])
+        τʷ = df[k,10]::Int64
+        r̅  = df[k,11]::Int64
+        πᵒ = df[k,12]::Float64
+        πᶠ = df[k,13]::Float64
         d  = D[iᵈ]
+        v  = Vehicle(iᵛ, jᵛ, iᵈ, q, l, s, τᶠ, τᵈ, τᶜ, τʷ, r̅, d.tˢ, d.tˢ, πᵒ, πᶠ, Route[])
         push!(d.V, v)
     end
     V  = [v for d ∈ D for v ∈ d.V]
-    φᵀ = Int64(!(iszero(getproperty.(C, :tᵉ)) && iszero(getproperty.(C, :tˡ)) && iszero(getproperty.(V, :w))))::Int64
-    G  = (D, C, A, φᵀ)
+    φᵀ = Int64(!(iszero(getproperty.(D, :tˢ)) && iszero(getproperty.(D, :tᵉ)) && iszero(getproperty.(C, :tᵉ)) && iszero(getproperty.(C, :tˡ)) && iszero(getproperty.(V, :τʷ))))::Int64
+    G  = (D, C, A, φᴱ, φᵀ)
     return G
 end
