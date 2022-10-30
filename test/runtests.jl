@@ -32,8 +32,7 @@ let
                     ]                       ,
             Ψₗ  =   [
                         :move!          ,
-                        :intraopt!      ,
-                        :interopt!      ,
+                        :opt!           ,
                         :split!         ,
                         :swap!
                     ]                       ,
@@ -92,8 +91,7 @@ let
                     ]                       ,
             Ψₗ  =   [
                         :move!          ,
-                        :intraopt!      ,
-                        :interopt!      ,
+                        :opt!           ,
                         :split!         ,
                         :swap!
                     ]                       ,
