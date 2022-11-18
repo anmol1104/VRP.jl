@@ -9,7 +9,7 @@ let
     # Visualize instance
     display(visualize(instance))
     # Define a random number generator
-    rng = MersenneTwister(1104);
+    rng = MersenneTwister(1403);
     # Define inital solution method and build the initial solution\
     G  = build(instance)
     sₒ = initialsolution(rng, G, :random);
@@ -41,10 +41,10 @@ let
                     :regret3!
                 ]                       ,
         Ψₗ  =   [
-                    :move!          ,
-                    :opt!           ,
-                    :split!         ,
-                    :swap!
+                    :intraopt!          ,
+                    :interopt!          ,
+                    :movecustomer!      ,
+                    :swapcustomers!
                 ]                       ,
         σ₁  =   15                      ,
         σ₂  =   10                      ,
