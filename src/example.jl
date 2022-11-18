@@ -5,11 +5,11 @@ using Random
 let
 # Developing an optimal solution 
     # Define instance
-    instance = "r101";
+    instance = "x-n303-k21";
     # Visualize instance
     display(visualize(instance))
     # Define a random number generator
-    rng = MersenneTwister(1234);
+    rng = MersenneTwister(1104);
     # Define inital solution method and build the initial solution\
     G  = build(instance)
     sₒ = initialsolution(rng, G, :random);
@@ -17,10 +17,10 @@ let
     x = length(sₒ.D)+length(sₒ.C);
     n = max(500, ceil(x, digits=-(length(digits(x))-1)));
     χ = ALNSParameters(
-        k̲   =   n ÷ 25                  ,
-        l̲   =   2n                      ,
-        l̅   =   5n                      ,
-        k̅   =   10n                     ,
+        n   =   n ÷ 25                  ,
+        k   =   250                     ,
+        m   =   2n                      ,
+        j   =   125                     ,
         Ψᵣ  =   [
                     :randomnode!    , 
                     :randomroute!   ,
