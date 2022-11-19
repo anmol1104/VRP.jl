@@ -10,7 +10,7 @@ let
     display(visualize(instance))
     # Define a random number generator
     rng = MersenneTwister(1403);
-    # Define inital solution method and build the initial solution\
+    # Define inital solution method and build the initial solution
     G  = build(instance)
     sₒ = initialsolution(rng, G, :random);
     # Define ALNS parameters
