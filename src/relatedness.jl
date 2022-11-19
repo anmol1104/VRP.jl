@@ -30,7 +30,7 @@ function relatedness(v¹::Vehicle, v²::Vehicle)
     q¹ = 0.
     for r ∈ v¹.R 
         l¹ += r.l
-        t¹ += r.l/v¹.s
+        t¹ += r.tᵉ - r.tˢ
         q¹ += r.q
     end
     l² = 0.
@@ -38,7 +38,7 @@ function relatedness(v¹::Vehicle, v²::Vehicle)
     q² = 0.
     for r ∈ v².R
         l² += r.l
-        t² += r.l/v².s
+        t² += r.tᵉ - r.tˢ
         q² += r.q
     end
     l = abs(l¹ - l²)
