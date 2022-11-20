@@ -51,13 +51,12 @@ end
 function relatednode!(rng::AbstractRNG, q::Int64, s::Solution)
     D = s.D
     C = s.C
-    A = s.A
     preremoval!(s)
     # Step 1: Randomly select a pivot customer node
     iᵒ = rand(rng, eachindex(C))
     # Step 2: For each customer node, evaluate relatedness to this pivot customer node
     X  = fill(-Inf, eachindex(C))   # X[iⁿ]: relatedness of customer node C[iⁿ] with customer node C[iᵒ]  
-    for iⁿ ∈ eachindex(C) X[iⁿ] = relatedness(C[iⁿ], C[iᵒ], A[(iⁿ,iᵒ)]) end
+    for iⁿ ∈ eachindex(C) X[iⁿ] = relatedness(C[iⁿ], C[iᵒ], s) end
     # Step 3: Remove q most related customer nodes
     n = 0
     while n < q
@@ -170,7 +169,7 @@ function relatedroute!(rng::AbstractRNG, q::Int64, s::Solution)
     iᵒ = sample(rng, eachindex(R), Weights(isopt.(R)))  
     # Step 2: For each route, evaluate relatedness to this pivot route
     X  = fill(-Inf, eachindex(R))
-    for iʳ ∈ eachindex(R) X[iʳ] = relatedness(R[iʳ], R[iᵒ]) end
+    for iʳ ∈ eachindex(R) X[iʳ] = relatedness(R[iʳ], R[iᵒ], s) end
     # Step 3: Remove at least q customers from most related route to this pivot route
     n = 0
     W = isopt.(R)
@@ -282,7 +281,7 @@ function relatedvehicle!(rng::AbstractRNG, q::Int64, s::Solution)
     iᵒ = sample(rng, eachindex(V), Weights(isopt.(V)))
     # Step 2: For each vehicle, evaluate relatedness to this pivot vehicle
     X  = fill(-Inf, eachindex(V))
-    for iᵛ ∈ eachindex(V) X[iᵛ] = relatedness(V[iᵛ], V[iᵒ]) end
+    for iᵛ ∈ eachindex(V) X[iᵛ] = relatedness(V[iᵛ], V[iᵒ], s) end
     # Step 3: Remove at least q customers from the most related vehicles to this pivot vehicle
     n = 0
     W = ones(Int64, eachindex(V))
