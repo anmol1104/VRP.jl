@@ -10,7 +10,7 @@ function relatedness(c¹::CustomerNode, c²::CustomerNode, s::Solution)
     φᵈ = isequal(d¹, d²)
     φᵛ = isequal(v¹, v²)
     φʳ = isequal(r¹, r²)
-    φ  = φᵈ + φᵛ + φʳ  
+    φ  = 1 + φᵈ + φᵛ + φʳ  
     l  = s.A[(c¹.iⁿ,c².iⁿ)].l
     t  = abs(c¹.tᵉ - c².tᵉ) + abs(c¹.tˡ - c².tˡ)
     q  = abs(c¹.q - c².q)
@@ -26,7 +26,7 @@ function relatedness(r¹::Route, r²::Route, s::Solution)
     v² = d².V[r².iᵛ]
     φᵈ = isequal(d¹, d²)
     φᵛ = isequal(v¹, v²)
-    φ  = φᵈ + φᵛ 
+    φ  = 1 + φᵈ + φᵛ 
     l  = sqrt((r¹.x - r².x)^2 + (r¹.y - r².y)^2)
     t  = abs(r¹.tˢ - r².tˢ) + abs(r¹.tᵉ - r².tᵉ)
     q  = abs(r¹.q - r².q)
@@ -63,10 +63,10 @@ function relatedness(v¹::Vehicle, v²::Vehicle, s::Solution)
     q² = 0
     for r ∈ v¹.R q¹ += r.q end
     for r ∈ v².R q² += r.q end
-    φ  = φᵈ
+    φ  = 1 + φᵈ
     l  = sqrt((x¹ - x²)^2 + (y¹ - y²)^2)
     t  = abs(v¹.tˢ - v².tˢ) + abs(v¹.tᵉ - v².tᵉ)
-    q  = abs(q² - q¹)
+    q  = abs(q¹ - q²)
     z  = (q + φ)/(l + t)
     return z
 end
