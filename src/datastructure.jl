@@ -167,6 +167,8 @@ function Route(v::Vehicle, d::DepotNode)
     iʳ = length(v.R) + 1
     iᵛ = v.iᵛ
     iᵈ = d.iⁿ
+    x  = 0.
+    y  = 0. 
     iˢ = iᵈ
     iᵉ = iᵈ
     θⁱ = isone(iʳ) ? 1.0 : v.R[iʳ-1].θᵉ
@@ -180,7 +182,7 @@ function Route(v::Vehicle, d::DepotNode)
     q  = 0
     l  = 0.
     φ  = 1
-    r  = Route(iʳ, iᵛ, iᵈ, 0., 0., iˢ, iᵉ, θⁱ, θˢ, θᵉ, tⁱ, tˢ, tᵉ, τ, n, q, l, φ)
+    r  = Route(iʳ, iᵛ, iᵈ, x, y, iˢ, iᵉ, θⁱ, θˢ, θᵉ, tⁱ, tˢ, tᵉ, τ, n, q, l, φ)
     return r
 end            
 
