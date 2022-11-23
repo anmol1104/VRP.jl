@@ -13,7 +13,7 @@ function insertnode!(nᵒ::Node, nᵗ::Node, nʰ::Node, rᵒ::Route, s::Solution
     if iscustomer(nᵒ)
         rᵒ.x = (rᵒ.n * rᵒ.x + nᵒ.x)/(rᵒ.n + 1)
         rᵒ.y = (rᵒ.n * rᵒ.y + nᵒ.y)/(rᵒ.n + 1)
-        nᵒ.r  = rᵒ
+        nᵒ.r = rᵒ
         rᵒ.n += 1
         rᵒ.q += nᵒ.q
     end
@@ -83,7 +83,7 @@ function removenode!(nᵒ::Node, nᵗ::Node, nʰ::Node, rᵒ::Route, s::Solution
     if iscustomer(nᵒ)
         rᵒ.x = isone(rᵒ.n) ? 0. : (rᵒ.n * rᵒ.x - nᵒ.x)/(rᵒ.n - 1)
         rᵒ.y = isone(rᵒ.n) ? 0. : (rᵒ.n * rᵒ.y - nᵒ.y)/(rᵒ.n - 1)
-        nᵒ.r  = NullRoute
+        nᵒ.r = NullRoute
         rᵒ.n -= 1
         rᵒ.q -= nᵒ.q
     end
