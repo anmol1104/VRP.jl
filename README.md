@@ -8,7 +8,7 @@ multi-depot capacitated vehicle routing problem with time-windows with heterogen
 
 Given, a graph `G = (D, C, A)` with 
 set of depots `D` with capacity `d.q`, and 
-fleet of vehicles `d.V` with capacity `v.q`, range `v.l`, speed `v.s`, refueling time `v.τᶠ`, depot node service time `v.τᵈ` (per unit demand), customer node service time `v.τᶜ`, operational cost `v.πᵒ`, fixed cost `v.πᶠ`, and driver working hours `v.w` for every vehicle `v ∈ d.V`, 
+fleet of vehicles `d.V` with capacity `v.q`, range `v.l`, speed `v.s`, refueling time `v.τᶠ`, depot node service time `v.τᵈ` (per unit demand), customer node service time `v.τᶜ`, operational cost `v.πᵈ` per unit distance and `v.πᵗ` per unit time, fixed cost `v.πᶠ`, and driver working hours `v.w` for every vehicle `v ∈ d.V`,  
 for every depot `d ∈ D`;
 set of customer nodes `C` with demand `c.q`, delivery time-window `[c.tᵉ,c.tˡ]` for every customer `c ∈ C`;
 set of arcs `A` with length `l` for every arc `(i,j) ∈ A`; and 
@@ -16,10 +16,10 @@ the objective is to develop least cost routes from depot nodes using select vehi
 
 This package uses Adaptive Large Neighborhood Search (ALNS) algorithm to find an optimal solution for the Locatio Routing Problem given ALNS optimization 
 parameters,
-- `k̲`     :   Number of ALNS iterations triggering operator probability update (segment size)
-- `l̲`     :   Number of ALNS iterations triggering local search
-- `l̅`     :   Number of local search iterations
-- `k̅`     :   Number of ALNS iterations
+- `n`     :   Number of ALNS iterations in an ALNS segment
+- `k`     :   Number of ALNS segments
+- `m`     :   Number of local search iterations
+- `j`     :   Number of ALNS segments triggering local search
 - `Ψᵣ`    :   Vector of removal operators
 - `Ψᵢ`    :   Vector of insertion operators
 - `Ψₗ`    :   Vector of local search operators
