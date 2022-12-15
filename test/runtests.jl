@@ -7,7 +7,7 @@ let
     # Vehicle Routing Problem
     @testset "VRP" begin
         χ   = ALNSParameters(
-            n   =   4                       ,
+            n   =   8                       ,
             k   =   250                     ,
             m   =   200                     ,
             j   =   125                     ,
